@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 
 
 public class AdminUserState extends AbstractUserState{
-    public AdminUserState(boolean isEnabled, String homeDir, boolean isAdmin, int uploadSpeed, int downloadSpeed, boolean canWrite) {
-        super(isEnabled, homeDir, isAdmin, uploadSpeed, downloadSpeed, canWrite);
+
+    public AdminUserState(boolean isEnabled, String homeDir, boolean isAdmin, int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
+        super(isEnabled, homeDir, isAdmin, uploadSpeed, downloadSpeed, canWrite, name);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.server;
 
 
+import com.example.server.exceptions.ServerInitializationException;
 import com.example.users.ServerUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,40 +23,43 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@AllArgsConstructor
+
 public class FTPServer {
     //todo валідатор вхідних даних
 
-    private int port;
+    private final int port;
     List<ServerUser> userList;
     PasswordEncryptor passwordEncryptor;
-    private int maxUsers;
-    private AtomicInteger activeConnections = new AtomicInteger(0);
+    private final int maxUsers;
+    private final AtomicInteger activeConnections = new AtomicInteger(0);
     @Getter
     private UserManager userManager;
-    @Getter
-    final FtpServerFactory serverFactory = new FtpServerFactory();
+    FtpServer server;
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
 
-    public FTPServer(int port, List<ServerUser> userList, PasswordEncryptor passwordEncryptor, int maxUsers) {
+    public FTPServer(int port, List<ServerUser> userList, PasswordEncryptor passwordEncryptor, int maxUsers) throws ServerInitializationException {
+        try {
+            FTPServerValidator.validate(port, userList, passwordEncryptor, maxUsers);
+        } catch (ServerInitializationException e) {
+            logger.error(e.getMessage());
+            throw e;
+        }
         this.port = port;
         this.userList = userList;
         this.passwordEncryptor = passwordEncryptor;
         this.maxUsers = maxUsers;
+        init();
     }
 
-
-    public void start() {
+    private void init() {
         ListenerFactory factory = new ListenerFactory();
         factory.setPort(port);
 
         ConnectionConfig connectionConfig = new DefaultConnectionConfig(false, 500, 0, 0, 3, 5);
+        FtpServerFactory serverFactory = new FtpServerFactory();
         serverFactory.setConnectionConfig(connectionConfig);
 
         serverFactory.addListener("default", factory.createListener());
@@ -73,10 +77,14 @@ public class FTPServer {
         Map<String, Ftplet> m = new HashMap<>();
         m.put("miaFtplet", new FtpletImpl());
         serverFactory.setFtplets(m);
-        FtpServer server = serverFactory.createServer();
+        server = serverFactory.createServer();
+    }
+
+
+    public void start() {
         try {
             server.start();
-            logger.info(String.format("FTP Server was started at port %d (0/%d)", port, maxUsers));
+            logger.info(String.format("FTP Server was started at port %d, (0/%d)", port, maxUsers));
         } catch (FtpException ex) {
             logger.error("CRASH: " + ex.getMessage());
         }
@@ -121,10 +129,11 @@ public class FTPServer {
         @Override
         public FtpletResult onDisconnect(FtpSession session) throws FtpException, IOException {
             activeConnections.decrementAndGet();
-            //сайлент мод або юзер вийшов з серверу
+            //якщо не сайлент мод, то юзер вийшов з серверу
             if (!silentMode) {
-                logger.info(String.format("User \"%s\" has disconnected in successfully. (%d/%d)",
-                        session.getUser().getName(), activeConnections.get(), maxUsers));
+                String userName = session.getUser().getName();
+                logger.info(String.format("%s \"%s\" has disconnected in successfully. (%d/%d)",
+                        getUser(userName).getStateName(), userName, activeConnections.get(), maxUsers));
             } else {
                 silentMode = false;
             }
@@ -134,43 +143,82 @@ public class FTPServer {
         //Визивається тільки тоді, коли вже все добре пройшло
         private FtpletResult tryToJoin(FtpSession session) throws FtpException, IOException {
             String userName = session.getUser().getName();
+            ServerUser user = getUser(userName);
 
             //Виключений ліміт по юзерам
             if (maxUsers == 0) {
-                logger.info(String.format("User \"%s\" has connected. (%d/%d)",
-                        session.getUser().getName(), activeConnections.get(), maxUsers));
+                logger.info(String.format("%s \"%s\" has connected. (%d/%d)",
+                        user.getStateName(), userName, activeConnections.get(), maxUsers));
                 return FtpletResult.DEFAULT;
             }
             //Ліміт юзерів вже вийшов
             if (activeConnections.get() > maxUsers) {
                 //Це адмін
                 if (isAdmin(userName)) {
-                    logger.info(String.format("User \"%s\" has connected. (%d/%d)",
-                            session.getUser().getName(), activeConnections.get(), maxUsers));
+                    logger.info(String.format("%s \"%s\" has connected. (%d/%d)",
+                            user.getStateName(), userName, activeConnections.get(), maxUsers));
                     return FtpletResult.DEFAULT;
                 } else {
+                    //Це не адмін, кік
+                    logger.warn(String.format("%s \"%s\" try to connected, but server is full. (%d/%d)",
+                            user.getStateName(), userName, activeConnections.get() - 1, maxUsers));
                     session.write(new DefaultFtpReply(FtpReply.REPLY_421_SERVICE_NOT_AVAILABLE_CLOSING_CONTROL_CONNECTION,
-                             String.format("Maximum number of sessions reached (%d/%d).",activeConnections.get(), maxUsers)));
+                            String.format("Maximum number of sessions reached (%d/%d).", activeConnections.get() - 1, maxUsers)));
                     silentMode = true;
                     return FtpletResult.DISCONNECT;
                 }
             } else {
-                //Ліміту ще немає
-                logger.info(String.format("User \"%s\" has logged in successfully. (%d/%d)",
-                        session.getUser().getName(), activeConnections.get(), maxUsers));
+                //Ліміт ще дозволяє заходити
+                logger.info(String.format("%s \"%s\" has logged in successfully. (%d/%d)",
+                        user.getStateName(), session.getUser().getName(), activeConnections.get(), maxUsers));
                 return FtpletResult.DEFAULT;
             }
         }
 
+        //Отримати по імені юзераз юзерлісту
+        private ServerUser getUser(String username) {
+            Optional<ServerUser> result = userList.stream()
+                    .filter(o -> username.equals(o.getName()))
+                    .findFirst();
+            if (result.isEmpty()) {
+                throw new NullPointerException("Unknown User");
+            }
+            return result.get();
+        }
 
         private boolean isAdmin(String username) {
             return userList.stream()
                     .filter(o -> username.equals(o.getName()))
                     .findFirst()
-                    .map(ServerUser::isAdmin) // перетворюємо Optional<ServerUser> в Optional<Boolean>
+                    .map(ServerUser::isAdmin)
                     .orElse(false);
         }
     }
+
+    private static class FTPServerValidator {
+        public static void validate(int port, List<ServerUser> userList, PasswordEncryptor passwordEncryptor, int maxUsers) throws ServerInitializationException {
+            // Перевірка порту
+            if (port <= 0 || port > 65535) {
+                throw new ServerInitializationException("Invalid port number: " + port + ". Port number must be between 1 and 65535.");
+            }
+
+            // Перевірка списку користувачів
+            if (userList == null || userList.isEmpty()) {
+                throw new ServerInitializationException("User list cannot be null or empty.");
+            }
+
+            // Перевірка шифрувальника паролів
+            if (passwordEncryptor == null) {
+                throw new ServerInitializationException("Password encryptor cannot be null.");
+            }
+
+            // Перевірка максимальної кількості користувачів
+            if (maxUsers <= 0) {
+                throw new ServerInitializationException("Maximum number of users must be greater than 0.");
+            }
+        }
+    }
+
 
 }
 

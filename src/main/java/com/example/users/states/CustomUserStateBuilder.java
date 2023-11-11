@@ -2,6 +2,7 @@ package com.example.users.states;
 
 public class CustomUserStateBuilder {
     private String homeDir;
+    private String name;
     private boolean isEnabled = true;
     private boolean isAdmin = false;
     private boolean canWrite = false;
@@ -10,6 +11,11 @@ public class CustomUserStateBuilder {
 
     public CustomUserStateBuilder setHomeDir(String homeDir) {
         this.homeDir = homeDir;
+        return this;
+    }
+
+    public CustomUserStateBuilder setName(String name) {
+        this.name = name;
         return this;
     }
 
@@ -39,7 +45,7 @@ public class CustomUserStateBuilder {
     }
 
     public CustomUserState build() {
-        return new CustomUserState(isEnabled,homeDir,isAdmin,uploadSpeed,downloadSpeed,canWrite);
+        return new CustomUserState(isEnabled,homeDir,isAdmin,uploadSpeed,downloadSpeed,canWrite,name);
     }
 }
 

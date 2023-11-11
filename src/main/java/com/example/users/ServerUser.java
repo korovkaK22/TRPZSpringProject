@@ -31,6 +31,10 @@ public class ServerUser implements User {
         return state.isAdmin();
     }
 
+    public String getStateName(){
+        return state.getName();
+    }
+
     @Override
     public String getName() {
         return name;
