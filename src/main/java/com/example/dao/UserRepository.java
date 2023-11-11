@@ -1,12 +1,12 @@
 package com.example.dao;
 
-import com.example.users.User;
-import com.example.users.UserBuilder;
+import com.example.users.ServerUser;
+import com.example.users.ServerUserBuilder;
+import com.example.users.states.CustomUserStateBuilder;
 import com.example.users.states.AdminUserState;
 import com.example.users.states.BannedUserState;
-import com.example.users.states.DefaultUserState;
-import com.example.users.states.PremiumUserState;
-import lombok.AllArgsConstructor;
+import com.example.users.states.ViewerUserState;
+import com.example.users.states.EditorUserState;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,20 +18,20 @@ import java.util.List;
 @Setter
 public class UserRepository {
     @Autowired
-    DefaultUserState defaultUserState;
+    ViewerUserState viewerUserState;
     @Autowired
     AdminUserState adminUserState;
     @Autowired
     BannedUserState bannedUserState;
     @Autowired
-    PremiumUserState premiumUserState;
+    EditorUserState editorUserState;
 
 
-    public List<User> getUsers(){
-        List<User> result = new LinkedList<>();
-        result.add(new UserBuilder().setName("test").setPassword("test").setState(defaultUserState).build());
-        result.add(new UserBuilder().setName("prem").setPassword("prem").setState(premiumUserState).build());
-        result.add(new UserBuilder().setName("banned").setPassword("banned").setState(bannedUserState).build());
+    public List<ServerUser> getUsers(){
+        List<ServerUser> result = new LinkedList<>();
+        result.add(new ServerUserBuilder().setName("test").setPassword("test").setState(viewerUserState).build());
+        result.add(new ServerUserBuilder().setName("edit").setPassword("edit").setState(editorUserState).build());
+        result.add(new ServerUserBuilder().setName("banned").setPassword("banned").setState(bannedUserState).build());
         return result;
         }
 

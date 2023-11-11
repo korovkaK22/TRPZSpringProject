@@ -5,11 +5,10 @@ import com.example.security.PasswordEncryptorImpl;
 import com.example.server.FTPServer;
 import com.example.users.states.AdminUserState;
 import com.example.users.states.BannedUserState;
-import com.example.users.states.DefaultUserState;
-import com.example.users.states.PremiumUserState;
+import com.example.users.states.ViewerUserState;
+import com.example.users.states.EditorUserState;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.bind.Name;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -35,13 +34,13 @@ public class SpringConfiguration {
     }
 
     @Bean
-    public DefaultUserState defaultUserState(@Value("${defaultUsersPath}") String userPath){
-        return new DefaultUserState(true, userPath, false, 2000, 2000, false);
+    public ViewerUserState viewerUserState(@Value("${defaultUsersPath}") String userPath){
+        return new ViewerUserState(true, userPath, false, 20000, 20000, false);
     }
 
     @Bean
-    public PremiumUserState premiumUserState(@Value("${premiumUsersPath}") String userPath){
-        return new PremiumUserState(true, userPath , false, 20000, 20000, true);
+    public EditorUserState premiumUserState(@Value("${premiumUsersPath}") String userPath){
+        return new EditorUserState(true, userPath , false, 20000, 20000, true);
     }
 
     @Bean

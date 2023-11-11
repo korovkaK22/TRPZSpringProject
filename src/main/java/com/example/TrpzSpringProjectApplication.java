@@ -2,14 +2,10 @@ package com.example;
 
 import com.example.dao.UserRepository;
 import com.example.server.FTPServer;
-import com.example.users.states.DefaultUserState;
 
-import org.apache.logging.log4j.core.config.Configurator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.Arrays;
 
 @SpringBootApplication
 public class TrpzSpringProjectApplication {
