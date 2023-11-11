@@ -26,6 +26,11 @@ public class ServerUser implements User {
     private String hashedPassword;
     AbstractUserState state;
 
+
+    public boolean isAdmin() {
+        return state.isAdmin();
+    }
+
     @Override
     public String getName() {
         return name;

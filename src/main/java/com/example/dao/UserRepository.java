@@ -31,6 +31,7 @@ public class UserRepository {
         List<ServerUser> result = new LinkedList<>();
         result.add(new ServerUserBuilder().setName("test").setPassword("test").setState(viewerUserState).build());
         result.add(new ServerUserBuilder().setName("edit").setPassword("edit").setState(editorUserState).build());
+        result.add(new ServerUserBuilder().setName("admin").setPassword("admin").setState(adminUserState).build());
         result.add(new ServerUserBuilder().setName("banned").setPassword("banned").setState(bannedUserState).build());
         return result;
         }

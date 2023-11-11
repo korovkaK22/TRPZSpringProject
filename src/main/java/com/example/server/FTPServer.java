@@ -1,6 +1,7 @@
 package com.example.server;
 
 
+import com.example.users.ServerUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,17 +33,17 @@ public class FTPServer {
     //todo валідатор вхідних даних
 
     private int port;
-    List<? extends User> userList;
+    List<ServerUser> userList;
     PasswordEncryptor passwordEncryptor;
     private int maxUsers;
     private AtomicInteger activeConnections = new AtomicInteger(0);
     @Getter
-    private  UserManager userManager;
+    private UserManager userManager;
     @Getter
     final FtpServerFactory serverFactory = new FtpServerFactory();
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
 
-    public FTPServer(int port, List<? extends User> userList, PasswordEncryptor passwordEncryptor, int maxUsers) {
+    public FTPServer(int port, List<ServerUser> userList, PasswordEncryptor passwordEncryptor, int maxUsers) {
         this.port = port;
         this.userList = userList;
         this.passwordEncryptor = passwordEncryptor;
@@ -54,7 +55,7 @@ public class FTPServer {
         ListenerFactory factory = new ListenerFactory();
         factory.setPort(port);
 
-        ConnectionConfig connectionConfig = new DefaultConnectionConfig(true, 500, maxUsers, 0, 3, 5);
+        ConnectionConfig connectionConfig = new DefaultConnectionConfig(false, 500, 0, 0, 3, 5);
         serverFactory.setConnectionConfig(connectionConfig);
 
         serverFactory.addListener("default", factory.createListener());
@@ -69,57 +70,109 @@ public class FTPServer {
 
         }
         serverFactory.setUserManager(userManager);
-        Map<String, Ftplet> m = new HashMap<String, Ftplet>();
-        m.put("miaFtplet", new Ftplet() {
-
-            @Override
-            public void init(FtpletContext ftpletContext) throws FtpException {
-            }
-
-            @Override
-            public void destroy() {
-            }
-
-            @Override
-            public FtpletResult beforeCommand(FtpSession session, FtpRequest request) throws FtpException, IOException {
-                return FtpletResult.DEFAULT;
-            }
-
-            @Override
-            public FtpletResult afterCommand(FtpSession session, FtpRequest request, FtpReply reply) throws FtpException, IOException {
-                //Логін юзера
-                if ("PASS".equalsIgnoreCase(request.getCommand()) && reply.getCode() == 230) {
-                    logger.info(String.format("User \"%s\" has logged in successfully. (%d/%d)",
-                            session.getUser().getName(), activeConnections.incrementAndGet(), maxUsers));
-                }
-                return FtpletResult.DEFAULT;
-            }
-
-            @Override
-            public FtpletResult onConnect(FtpSession session) throws FtpException, IOException {
-                return FtpletResult.DEFAULT;
-            }
-
-
-            @Override
-            public FtpletResult onDisconnect(FtpSession session) throws FtpException, IOException {
-                if (session.getUser() != null){
-                    String username = session.getUser().getName();
-                    logger.info(String.format("User \"%s\" has disconnected. (%d/%d)",
-                            username, activeConnections.decrementAndGet(), maxUsers));
-                }
-                 return FtpletResult.DEFAULT;
-            }
-        });
+        Map<String, Ftplet> m = new HashMap<>();
+        m.put("miaFtplet", new FtpletImpl());
         serverFactory.setFtplets(m);
         FtpServer server = serverFactory.createServer();
         try {
             server.start();
-            logger.info(String.format("FTP Server was started at port %d", port));
+            logger.info(String.format("FTP Server was started at port %d (0/%d)", port, maxUsers));
         } catch (FtpException ex) {
             logger.error("CRASH: " + ex.getMessage());
         }
     }
+
+
+    private class FtpletImpl implements Ftplet {
+        //Коли юзера не пускає на сервер, бо сервер забитий,  onDisconnect глушиться
+        boolean silentMode = false;
+
+        @Override
+        public void init(FtpletContext ftpletContext) throws FtpException {
+        }
+
+        @Override
+        public void destroy() {
+        }
+
+        @Override
+        public FtpletResult beforeCommand(FtpSession ftpSession, FtpRequest ftpRequest) throws FtpException, IOException {
+            return FtpletResult.DEFAULT;
+        }
+
+        @Override
+        public FtpletResult afterCommand(FtpSession session, FtpRequest request, FtpReply reply) throws FtpException, IOException {
+
+            //Логін юзера пройшов добре
+            if ("PASS".equalsIgnoreCase(request.getCommand()) && reply.getCode() == 230) {
+                return tryToJoin(session);
+            }
+
+            return FtpletResult.DEFAULT;
+        }
+
+        @Override
+        public FtpletResult onConnect(FtpSession session) throws FtpException, IOException {
+            activeConnections.incrementAndGet();
+            return FtpletResult.DEFAULT;
+        }
+
+
+        @Override
+        public FtpletResult onDisconnect(FtpSession session) throws FtpException, IOException {
+            activeConnections.decrementAndGet();
+            //сайлент мод або юзер вийшов з серверу
+            if (!silentMode) {
+                logger.info(String.format("User \"%s\" has disconnected in successfully. (%d/%d)",
+                        session.getUser().getName(), activeConnections.get(), maxUsers));
+            } else {
+                silentMode = false;
+            }
+            return FtpletResult.DEFAULT;
+        }
+
+        //Визивається тільки тоді, коли вже все добре пройшло
+        private FtpletResult tryToJoin(FtpSession session) throws FtpException, IOException {
+            String userName = session.getUser().getName();
+
+            //Виключений ліміт по юзерам
+            if (maxUsers == 0) {
+                logger.info(String.format("User \"%s\" has connected. (%d/%d)",
+                        session.getUser().getName(), activeConnections.get(), maxUsers));
+                return FtpletResult.DEFAULT;
+            }
+            //Ліміт юзерів вже вийшов
+            if (activeConnections.get() > maxUsers) {
+                //Це адмін
+                if (isAdmin(userName)) {
+                    logger.info(String.format("User \"%s\" has connected. (%d/%d)",
+                            session.getUser().getName(), activeConnections.get(), maxUsers));
+                    return FtpletResult.DEFAULT;
+                } else {
+                    session.write(new DefaultFtpReply(FtpReply.REPLY_421_SERVICE_NOT_AVAILABLE_CLOSING_CONTROL_CONNECTION,
+                             String.format("Maximum number of sessions reached (%d/%d).",activeConnections.get(), maxUsers)));
+                    silentMode = true;
+                    return FtpletResult.DISCONNECT;
+                }
+            } else {
+                //Ліміту ще немає
+                logger.info(String.format("User \"%s\" has logged in successfully. (%d/%d)",
+                        session.getUser().getName(), activeConnections.get(), maxUsers));
+                return FtpletResult.DEFAULT;
+            }
+        }
+
+
+        private boolean isAdmin(String username) {
+            return userList.stream()
+                    .filter(o -> username.equals(o.getName()))
+                    .findFirst()
+                    .map(ServerUser::isAdmin) // перетворюємо Optional<ServerUser> в Optional<Boolean>
+                    .orElse(false);
+        }
+    }
+
 }
+
 
 
