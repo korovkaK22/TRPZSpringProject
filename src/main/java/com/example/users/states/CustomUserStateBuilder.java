@@ -1,22 +1,18 @@
 package com.example.users.states;
 
+
 public class CustomUserStateBuilder {
-    private String homeDir;
-    private String name;
+    private final String homeDir;
+    private final String name;
     private boolean isEnabled = true;
     private boolean isAdmin = false;
     private boolean canWrite = false;
     int uploadSpeed = 0;
     int downloadSpeed = 0;
 
-    public CustomUserStateBuilder setHomeDir(String homeDir) {
+    public CustomUserStateBuilder(String homeDir, String name) {
         this.homeDir = homeDir;
-        return this;
-    }
-
-    public CustomUserStateBuilder setName(String name) {
         this.name = name;
-        return this;
     }
 
     public CustomUserStateBuilder setEnabled(boolean isEnabled) {

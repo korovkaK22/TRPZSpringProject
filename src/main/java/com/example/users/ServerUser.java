@@ -94,4 +94,8 @@ public class ServerUser implements User {
     public String getHomeDirectory() {
         return state.getHomeDir();
     }
-}
+
+  }
+
+
+

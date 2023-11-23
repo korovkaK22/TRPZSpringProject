@@ -5,6 +5,7 @@ import com.example.server.exceptions.ServerInitializationException;
 import com.example.users.ServerUser;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.ftpserver.ConnectionConfig;
 import org.apache.ftpserver.DataConnectionConfiguration;
@@ -26,10 +27,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
+@RequiredArgsConstructor
 public class FTPServer {
-    //todo валідатор вхідних даних
-
     private final int port;
     List<ServerUser> userList;
     PasswordEncryptor passwordEncryptor;
@@ -63,6 +62,7 @@ public class FTPServer {
         serverFactory.setConnectionConfig(connectionConfig);
 
         serverFactory.addListener("default", factory.createListener());
+
         PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
         userManagerFactory.setPasswordEncryptor(passwordEncryptor);
         userManager = userManagerFactory.createUserManager();
@@ -73,6 +73,9 @@ public class FTPServer {
         } catch (FtpException e1) {
 
         }
+
+
+
         serverFactory.setUserManager(userManager);
         Map<String, Ftplet> m = new HashMap<>();
         m.put("miaFtplet", new FtpletImpl());
@@ -113,6 +116,7 @@ public class FTPServer {
 
             //Логін юзера пройшов добре
             if ("PASS".equalsIgnoreCase(request.getCommand()) && reply.getCode() == 230) {
+
                 return tryToJoin(session);
             }
 

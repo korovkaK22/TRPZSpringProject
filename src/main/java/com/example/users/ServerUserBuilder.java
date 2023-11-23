@@ -2,27 +2,13 @@ package com.example.users;
 
 import com.example.users.states.AbstractUserState;
 
-public class ServerUserBuilder {
-    private String name;
-    private String hashedPassword;
-    private AbstractUserState state;
+public interface ServerUserBuilder {
 
-    public ServerUserBuilder setName(String name) {
-        this.name = name;
-        return this;
-    }
+    ServerUserBuilder setName(String name);
 
-    public ServerUserBuilder setPassword(String hashedPassword) {
-        this.hashedPassword = hashedPassword;
-        return this;
-    }
+    ServerUserBuilder setPassword(String hashedPassword);
 
-    public ServerUserBuilder setState(AbstractUserState state) {
-        this.state = state;
-        return this;
-    }
+    ServerUserBuilder setState(AbstractUserState state);
 
-    public ServerUser build() {
-        return new ServerUser(name, hashedPassword, state);
-    }
+    ServerUser build();
 }

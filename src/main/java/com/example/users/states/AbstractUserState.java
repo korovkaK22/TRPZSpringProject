@@ -13,13 +13,14 @@ import java.util.List;
 @Getter
 public abstract class AbstractUserState {
     private final boolean isEnabled;
-    private String name;
+    private final String name;
     private final String homeDir;
     private final boolean isAdmin;
     private final boolean canWrite;
     private final List<Authority> authorities = new ArrayList<>();
 
-    public AbstractUserState(boolean isEnabled, String homeDir, boolean isAdmin, int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
+    public AbstractUserState(boolean isEnabled, String homeDir, boolean isAdmin,
+                             int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
         this.isEnabled = isEnabled;
         this.homeDir = homeDir;
         this.isAdmin = isAdmin;
@@ -28,7 +29,4 @@ public abstract class AbstractUserState {
         if (canWrite) authorities.add(new WritePermission());
         authorities.add(new TransferRatePermission(downloadSpeed, uploadSpeed));
     }
-
-
-
 }
