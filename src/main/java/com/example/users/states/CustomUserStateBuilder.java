@@ -19,11 +19,11 @@ public class CustomUserStateBuilder {
     /**Можливість створення/редагування файлів */
     private boolean canWrite = false;
     /** пропускна швидкість на вивантаження */
-    int uploadSpeed = 0;
+    int uploadSpeed = 100;
     /** пропускна швидкість на завантаження */
-    int downloadSpeed = 0;
+    int downloadSpeed = 100;
 
-    public CustomUserStateBuilder(String homeDir, String name) {
+    public CustomUserStateBuilder(String name, String homeDir) {
         valid(homeDir, name);
         this.homeDir = homeDir;
         this.name = name;
@@ -57,17 +57,23 @@ public class CustomUserStateBuilder {
     }
     /**
      * Встановити швидкість вивантажування
-     @param uploadSpeed швидкість вивантажування
+     @param uploadSpeed швидкість вивантажування >=0
      */
     public CustomUserStateBuilder setUploadSpeed(int uploadSpeed) {
+        if (uploadSpeed < 0) {
+            throw new IllegalArgumentException("speed cannot be minus");
+        }
         this.uploadSpeed = uploadSpeed;
         return this;
     }
     /**
      * Встановити швидкість завантажування
-     @param downloadSpeed швидкість завантажування
+     @param downloadSpeed швидкість завантажування >=0
      */
     public CustomUserStateBuilder setDownloadSpeed(int downloadSpeed) {
+        if (downloadSpeed < 0) {
+            throw new IllegalArgumentException("speed cannot be minus");
+        }
         this.downloadSpeed = downloadSpeed;
         return this;
     }
@@ -92,10 +98,6 @@ public class CustomUserStateBuilder {
         }
         if (homeDir == null){
             throw new NullPointerException("homeDir is null");
-        }
-        Path path = Paths.get(homeDir);
-        if (!Files.exists(path)) {
-            throw new IllegalArgumentException("Такого шляху не існує");
         }
     }
 }

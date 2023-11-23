@@ -6,10 +6,7 @@ import com.example.server.FTPServer;
 import com.example.server.exceptions.ServerInitializationException;
 import com.example.users.ServerUserBuilder;
 import com.example.users.ServerUserBuilderImpl;
-import com.example.users.states.AdminUserState;
-import com.example.users.states.BannedUserState;
-import com.example.users.states.ViewerUserState;
-import com.example.users.states.EditorUserState;
+import com.example.users.states.*;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +27,7 @@ public class SpringConfiguration {
     public ServerUserBuilder getServerUserBuilder(){
         return new ServerUserBuilderImpl();
     }
+
 
     @Bean
     public PasswordEncryptor getPasswordEncryptor(){
