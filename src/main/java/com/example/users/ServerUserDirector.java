@@ -4,30 +4,42 @@ import com.example.users.states.AdminUserState;
 import com.example.users.states.BannedUserState;
 import com.example.users.states.EditorUserState;
 import com.example.users.states.ViewerUserState;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-public record ServerUserDirector(ServerUserBuilder builder, ViewerUserState viewerUserState,
-                                 AdminUserState adminUserState, BannedUserState bannedUserState, EditorUserState editorUserState) {
+public class ServerUserDirector {
+    ViewerUserState viewerUserState;
+    AdminUserState adminUserState;
+    BannedUserState bannedUserState;
+    EditorUserState editorUserState;
+    private ServerUser user = null;
+
+    public ServerUserDirector(ViewerUserState viewerUserState, AdminUserState adminUserState, BannedUserState bannedUserState, EditorUserState editorUserState) {
+        this.viewerUserState = viewerUserState;
+        this.adminUserState = adminUserState;
+        this.bannedUserState = bannedUserState;
+        this.editorUserState = editorUserState;
+    }
 
     public void constructDefaultViewerUser(){
-        builder.setName("test").setPassword("test").setState(viewerUserState).build();
+        user = new ServerUser("test", "test", viewerUserState);
     }
 
     public void constructDefaultAdminUser(){
-        builder.setName("admin").setPassword("admin").setState(adminUserState).build();
+        user = new ServerUser("admin", "admin", adminUserState);
     }
 
     public void constructDefaultBannedUser(){
-        builder.setName("banned").setPassword("banned").setState(bannedUserState).build();
+        user = new ServerUser("banned", "banned", bannedUserState);
     }
 
     public void constructDefaultEditorUser(){
-        builder.setName("edit").setPassword("edit").setState(editorUserState).build();
+        user = new ServerUser("edit", "edit", editorUserState);
     }
 
     public ServerUser getResult(){
-        return builder.build();
+        return user;
     }
 
 

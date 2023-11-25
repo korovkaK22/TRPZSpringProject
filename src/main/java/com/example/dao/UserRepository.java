@@ -30,6 +30,7 @@ public class UserRepository {
         ServerUser defaultViewerUser =  director.getResult();
         addUser(defaultViewerUser);
 
+
         director.constructDefaultAdminUser();
         ServerUser defaultAdminUser =  director.getResult();
         addUser(defaultAdminUser);
