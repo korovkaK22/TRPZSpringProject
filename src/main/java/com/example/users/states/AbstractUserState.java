@@ -2,6 +2,7 @@ package com.example.users.states;
 
 import lombok.*;
 import org.apache.ftpserver.ftplet.Authority;
+import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
 import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 
@@ -17,6 +18,8 @@ public abstract class AbstractUserState {
     private final String homeDir;
     private final boolean isAdmin;
     private final boolean canWrite;
+    private final int uploadSpeed;
+    private final int downloadSpeed;
     private final List<Authority> authorities = new ArrayList<>();
 
     public AbstractUserState(boolean isEnabled, String homeDir, boolean isAdmin,
@@ -25,8 +28,12 @@ public abstract class AbstractUserState {
         this.homeDir = homeDir;
         this.isAdmin = isAdmin;
         this.canWrite = canWrite;
+        this.uploadSpeed = uploadSpeed;
+        this.downloadSpeed = downloadSpeed;
         this.name = name;
-        if (canWrite) authorities.add(new WritePermission());
+        if (canWrite) {authorities.add(new WritePermission());}
         authorities.add(new TransferRatePermission(downloadSpeed, uploadSpeed));
+
+        authorities.add(new ConcurrentLoginPermission(1, 10));
     }
 }

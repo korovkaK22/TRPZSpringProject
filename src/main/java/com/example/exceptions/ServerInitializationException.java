@@ -1,4 +1,4 @@
-package com.example.server.exceptions;
+package com.example.exceptions;
 
 public class ServerInitializationException extends Exception{
     public ServerInitializationException() {

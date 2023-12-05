@@ -1,0 +1,7 @@
+ CustomUserState testerState = new CustomUserStateBuilder(
+                "TESTER", "C:\\Users\\sa095\\Desktop\\tests")
+                .setAdmin(true)
+                .setCanWrite(true)
+                .setDownloadSpeed(100_000)
+                .build();
+        ServerUser user = new ServerUser("tester", "tester", testerState);

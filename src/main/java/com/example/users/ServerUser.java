@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @ToString
-public class ServerUser implements User {
+public class ServerUser extends BaseUser implements User {
     private String name;
     private String hashedPassword;
-    AbstractUserState state;
-
+    @Getter
+    private AbstractUserState state;
 
     public boolean isAdmin() {
         return state.isAdmin();
@@ -46,15 +46,23 @@ public class ServerUser implements User {
     }
 
     @Override
-    public List<? extends Authority> getAuthorities() {
+    public List<Authority> getAuthorities() {
         return state.getAuthorities();
     }
 
     @Override
-    public List<? extends Authority> getAuthorities(Class<? extends Authority> aClass) {
-        return getAuthorities().stream()
-                .filter(authority -> authority.getClass().equals(aClass))
-                .collect(Collectors.toList());
+    public int getMaxIdleTime() {
+        return 5000;
+    }
+
+    @Override
+    public boolean getEnabled() {
+        return state.isEnabled();
+    }
+
+    @Override
+    public String getHomeDirectory() {
+        return state.getHomeDir();
     }
 
     @Override
@@ -79,22 +87,6 @@ public class ServerUser implements User {
             }
         }
     }
-
-    @Override
-    public int getMaxIdleTime() {
-        return 5000;
-    }
-
-    @Override
-    public boolean getEnabled() {
-        return state.isEnabled();
-    }
-
-    @Override
-    public String getHomeDirectory() {
-        return state.getHomeDir();
-    }
-
   }
 
 
