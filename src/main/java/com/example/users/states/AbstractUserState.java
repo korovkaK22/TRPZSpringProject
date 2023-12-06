@@ -36,4 +36,12 @@ public abstract class AbstractUserState {
 
         authorities.add(new ConcurrentLoginPermission(1, 10));
     }
+
+    public boolean getIsEnabled() {
+        return isEnabled;
+    }
+
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
 }

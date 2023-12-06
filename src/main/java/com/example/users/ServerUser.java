@@ -1,10 +1,7 @@
 package com.example.users;
 
 import com.example.users.states.AbstractUserState;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.apache.ftpserver.ftplet.Authority;
 import org.apache.ftpserver.ftplet.AuthorizationRequest;
 import org.apache.ftpserver.ftplet.User;
@@ -21,6 +18,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode
 public class ServerUser extends BaseUser implements User {
     private String name;
     private String hashedPassword;
@@ -28,7 +26,7 @@ public class ServerUser extends BaseUser implements User {
     private AbstractUserState state;
 
     public boolean isAdmin() {
-        return state.isAdmin();
+        return state.getIsAdmin();
     }
 
     public String getStateName(){
@@ -57,7 +55,7 @@ public class ServerUser extends BaseUser implements User {
 
     @Override
     public boolean getEnabled() {
-        return state.isEnabled();
+        return state.getIsEnabled();
     }
 
     @Override
@@ -86,6 +84,20 @@ public class ServerUser extends BaseUser implements User {
                 return null;
             }
         }
+    }
+
+
+
+    public ServerUserSnapshot createSnapshot() {
+        return new ServerUserSnapshot(this.name, this.hashedPassword, this.state);
+    }
+
+
+
+    public void restoreFromSnapshot(ServerUserSnapshot snapshot) {
+        this.name = snapshot.getName();
+        this.hashedPassword = snapshot.getHashedPassword();
+        this.state = snapshot.getState();
     }
   }
 

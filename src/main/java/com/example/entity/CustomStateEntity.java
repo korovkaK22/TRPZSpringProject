@@ -41,9 +41,9 @@ public class CustomStateEntity {
 
     public CustomStateEntity(CustomUserState state) {
         this.name = state.getName();
-        this.isAdmin = state.isAdmin();
+        this.isAdmin = state.getIsAdmin();
         this.direction = state.getHomeDir();
-        this.isEnabled = state.isEnabled();
+        this.isEnabled = state.getIsEnabled();
         this.canWrite = state.isCanWrite();
         this.uploadSpeed = state.getUploadSpeed();
         this.downloadSpeed = state.getDownloadSpeed();

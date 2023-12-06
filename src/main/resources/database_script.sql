@@ -14,3 +14,11 @@ CREATE TABLE IF NOT EXISTS custom_states (
     upload_speed INT NOT NULL,
     download_speed INT NOT NULL
 );
+
+CREATE TABLE user_snapshots (
+                                id SERIAL PRIMARY KEY,
+                                name VARCHAR(255),
+                                username VARCHAR(255),
+                                password VARCHAR(255),
+                                state_name VARCHAR(255)
+);

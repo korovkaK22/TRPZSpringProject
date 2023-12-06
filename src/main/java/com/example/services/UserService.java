@@ -9,11 +9,14 @@ import com.example.users.states.AbstractUserState;
 import com.example.users.states.CustomUserState;
 import com.example.users.states.CustomUserStateBuilder;
 import lombok.AllArgsConstructor;
+import org.apache.ftpserver.usermanager.impl.BaseUser;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.parser.Entity;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,25 +25,35 @@ public class UserService {
     private StatesService statesService;
     private PasswordEncryptorImpl passwordEncryptor;
 
-
     public List<ServerUser> getAllUsers(){
-      //  return userRepository.findAll().stream().map(this::convertUserEntity).toList();
-        LinkedList<ServerUser> users = new LinkedList<>();
-        users.add(new ServerUser("test", passwordEncryptor.encrypt("test"),new CustomUserStateBuilder(
-                "TESTER", "C:\\")
-                .setAdmin(false)
-                .setEnabled(true)
-                .setCanWrite(true)
-                .setDownloadSpeed(100_000)
-                .build()));
-        users.add(new ServerUser("admin", passwordEncryptor.encrypt("admin"),new CustomUserStateBuilder(
-                "ADMIN", "C:\\")
-                .setAdmin(true)
-                .setCanWrite(true)
-                .setDownloadSpeed(100_000)
-                .build()));
-        return users;
+       return userRepository.findAll().stream()
+               .map(this::convertUserEntity)
+               .sorted(Comparator.comparing(ServerUser::getName))
+               .toList();
     }
+
+    /**
+     * Перевіряє, чи співпадають паролі;
+     * @param name ім'я користувача
+     * @param password пароль
+     */
+    public boolean checkPasswords(String name, String password){
+        ServerUser user = getServerUserByName(name);
+       return passwordEncryptor.matches(password, user.getPassword());
+    }
+
+
+
+    public ServerUser getServerUserByName(String name){
+        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
+        if (userOpt.isEmpty()){
+            throw new UserNotFoundException("Can't find user with name: "+ name);
+        }
+       return convertUserEntity(userOpt.get());
+    }
+
+
+
 
     public ServerUser convertUserEntity(UserEntity entity){
         try {
@@ -51,12 +64,15 @@ public class UserService {
         }
     }
 
+
+
     public void save(ServerUser user){
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(user.getName());
         userEntity.setPassword(user.getPassword());
         AbstractUserState state = user.getState();
         userEntity.setStateName(state.getName());
+        userRepository.save(userEntity);
         if (state.getClass() == CustomUserState.class){
             statesService.save((CustomUserState) state);
         }

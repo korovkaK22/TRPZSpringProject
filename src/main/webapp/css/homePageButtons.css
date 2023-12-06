@@ -1,0 +1,72 @@
+/*Кнопочки*/
+.buttons {
+    margin-top: 1%;
+    display: flex;
+    justify-content: center; /* Вирівнювання елементів по центру */
+    flex-wrap: wrap; /* Дозволяє переносити елементи на новий рядок */
+    gap: 10px; /* Відступ між елементами */
+}
+button:hover {
+    background-color: #003d82;
+}
+
+.buttons form {
+    max-width: 20%; /* Максимальна ширина для кожної форми */
+}
+
+.buttons button{
+    margin-top: 3%;
+}
+
+button {
+    width: 250px;
+    height: 70px;
+    background-color: #09457e;
+    color: white;
+    font-size:22px;
+    padding: 18px;
+    border: 1px solid #042a5d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+
+button:disabled{
+    background-color: #8f1e1e;
+}
+
+#open-queue-button{
+    background-color: #1a8f1b;
+}
+
+#mode-queue-button{
+    background-color:  #042a5d;
+}
+
+.delete-user-button{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    background-color: #980505;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-user-button img{
+    width: 25px;
+    height: 25px;
+}
+
+.delete-user-button:hover{
+    background-color: #730404;
+}

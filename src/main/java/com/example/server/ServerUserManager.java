@@ -102,7 +102,7 @@ public class ServerUserManager implements UserManager {
         }
         User user = getUserByName(username);
         if (user instanceof ServerUser serverUser){
-            return serverUser.getState().isAdmin();
+            return serverUser.getState().getIsAdmin();
         }
        return false;
     }
