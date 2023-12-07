@@ -49,32 +49,27 @@ public class ServerUserManager implements UserManager {
 
     @Override
     public String[] getAllUserNames() {
-        System.out.println(2); //===========
         return users.keySet().toArray(new String[0]);
     }
 
     @Override
     public void delete(String username) {
-        System.out.println(3); //===========
         users.remove(username);
     }
 
     @Override
     public void save(User user) {
-        System.out.println(4); //===========
         users.put(user.getName(), user);
     }
 
 
     @Override
     public boolean doesExist(String username) {
-        System.out.println(5); //===========
         return users.containsKey(username);
     }
 
     @Override
     public User authenticate(Authentication authentication) throws AuthenticationFailedException {
-        System.out.println(6); //===========
         if (authentication instanceof UsernamePasswordAuthentication upAuth) {
             String username = upAuth.getUsername();
             String password = upAuth.getPassword();
@@ -90,13 +85,11 @@ public class ServerUserManager implements UserManager {
 
     @Override
     public String getAdminName() {
-        System.out.println(7); //===========
         return "admin";
     }
 
     @Override
     public boolean isAdmin(String username) {
-        System.out.println(8); //===========
         if ("admin".equals(username)){
             return true;
         }

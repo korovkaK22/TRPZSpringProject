@@ -8,7 +8,7 @@
 }
 
 /*дів, у якому всі інші діви*/
-.mainDiv{
+.mainDiv {
     margin-top: 5%;
 }
 
@@ -19,23 +19,57 @@ form {
 }
 
 
-input{
+.input-field {
     padding: 18px;
     border: 2px solid #ddd;
     border-radius: 8px;
     outline: none;
-    font-size:18px;
+    font-size: 18px;
+    width: 100%;
 }
 
-input:focus {
+.input-field-small {
+    padding: 8px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 18px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.input-field-small:last-child{
+    margin-bottom: 0;
+}
+
+
+#customRoleInputs {
+    gap: 20px;
+}
+
+.role-select {
+    padding: 18px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 18px;
+    width: 100%;
+}
+
+.role-select:focus, .input-field-small:focus {
     border-color: #0056b3;
 }
+
+.input-field:focus {
+    border-color: #0056b3;
+}
+
 
 button {
     margin-top: 3%;
     background-color: #0056b3;
     color: white;
-    font-size:20px;
+    font-size: 20px;
     padding: 18px;
     border: 1px solid #003d82;
     border-radius: 6px;
@@ -49,21 +83,27 @@ button:hover {
 
 
 /*текст внизу, якщо якась помилка*/
-.failMessage{
+.failMessage {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    font-size:25px;
+    font-size: 25px;
     color: red;
     font-weight: bold;
 }
 
-.or-action{
+.or-action {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    font-size:22px;
+    font-size: 22px;
     font-weight: bold;
+}
+
+.radio-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }

@@ -1,11 +1,11 @@
 package com.example;
 
-import com.example.security.PasswordEncryptorImpl;
 import com.example.server.FTPServer;
 import com.example.exceptions.*;
 import com.example.server.ServerUserManager;
 import com.example.services.UserService;
-import com.example.users.ServerUser;
+import com.example.templatepattern.AllUsersManagerInitialization;
+import com.example.templatepattern.OnlyAdminUsersManagerInitialization;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +25,9 @@ public class SpringConfiguration {
 
     @Bean(name = "serverUserManager")
     public ServerUserManager getConfiguredServerUserManager(PasswordEncryptor passwordEncryptor, UserService userService){
-        ServerUserManager manager = new ServerUserManager(passwordEncryptor);
-        manager.save(userService.getAllUsers());
-        return manager;
+        //OnlyAdminUsersManagerInitialization init = new OnlyAdminUsersManagerInitialization(userService, passwordEncryptor);
+        AllUsersManagerInitialization init = new AllUsersManagerInitialization(userService, passwordEncryptor);
+        return init.getInitialisedUserManager();
     }
 
 

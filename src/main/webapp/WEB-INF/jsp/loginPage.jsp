@@ -31,8 +31,8 @@
     <%--Логін--%>
     <div class="authorization-container">
         <form action="/" method="post">
-            <input type="text" name="username" value="admin" placeholder=" Логін" required>
-            <input type="password" name="password" value="admin" placeholder=" Пароль" required>
+            <input class="input-field" type="text" name="username" value="admin" placeholder=" Логін" required>
+            <input class="input-field" type="password" name="password" value="admin" placeholder=" Пароль" required>
             <button type="submit">Ввійти</button>
         </form>
         <c:if test="${failMessage != null}">

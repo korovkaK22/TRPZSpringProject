@@ -6,10 +6,10 @@
     outline: none;
     font-size:18px;
     text-align: center;
+    margin-bottom: 20px;
 }
 
-#memento-button{
-    margin-top: 3%;
+.small-button{
     background-color: #134983;
     color: white;
     height: 50px;
@@ -21,7 +21,7 @@
     transition: background-color 0.3s;
 }
 
-#memento-button:hover {
+.small-button:hover {
     background-color: #07356c;
 }
 

@@ -13,13 +13,18 @@
 .statistic-container {
     background-color: rgba(229, 226, 27, 0.06);
     padding: 2% 3% 2% 3%;
-    width: 22%;
+    hyphenate-character: "\\" ;
     height: auto;
     margin: 2% auto auto;
     border-radius: 8px;
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
     font-size: 20px;
+    max-width: 450px;
+    /*width: fit-content;*/
+
 }
+
+
 
 /* Стилі для посилань */
 a {

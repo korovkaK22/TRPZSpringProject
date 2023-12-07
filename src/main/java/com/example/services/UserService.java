@@ -38,6 +38,15 @@ public class UserService {
                 .toList();
     }
 
+    public List<ServerUser> getOnlyAdminUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertUserEntity)
+                .filter(ServerUser::isAdmin)
+                .sorted(Comparator.comparing(ServerUser::getName))
+                .toList();
+    }
+
+
     /**
      * Перевіряє, чи співпадають паролі;
      *
@@ -62,6 +71,9 @@ public class UserService {
       applicationContext.getBean(ServerUserManager.class).save(user);
     }
 
+    public boolean doesUserExist(String name){
+        return  userRepository.findUserEntityByUsernameIgnoreCase(name).isPresent();
+    }
 
     public ServerUser getServerUserByName(String name) {
         Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
@@ -112,19 +124,17 @@ public class UserService {
     }
 
 
-    public void createUser(ServerUser user) {
-        if (userRepository.findUserEntityByUsernameIgnoreCase(user.getName()).isPresent()) {
-            throw new UserCreationException("User with this name already exist: " + user.getName());
-        }
-        userRepository.save(convertServerUser(user));
+    public void createUser(String username, String password, String stateName) {
+        UserEntity user = new UserEntity(username,passwordEncryptor.encrypt(password), stateName);
 
-        AbstractUserState state = user.getState();
-        if (state.getClass() == CustomUserState.class) {
-            if (!statesService.doesStateExist(state.getName())) {
-                statesService.createState((CustomUserState) state);
-            }
+        if (userRepository.findUserEntityByUsernameIgnoreCase(user.getUsername()).isPresent()) {
+            throw new UserCreationException("User with this name already exist: " + user.getUsername());
         }
+        userRepository.save(user);
+    }
 
+    public void deleteUser(String username){
+        userRepository.deleteById(username);
     }
 
 }

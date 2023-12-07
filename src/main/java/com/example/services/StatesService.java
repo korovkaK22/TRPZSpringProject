@@ -5,10 +5,14 @@ import com.example.repositories.CustomStateRepository;
 import com.example.users.states.AbstractUserState;
 import com.example.users.states.CustomUserState;
 import com.example.exceptions.*;
+import com.example.users.states.CustomUserStateBuilder;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +33,11 @@ public class StatesService {
 
     /**
      * Віддає стан користувача, як дефолтний, так і кастомний
+     *
      * @param name
      * @return
      */
-    public AbstractUserState getStateByName(String name) throws StateNotFoundException{
+    public AbstractUserState getStateByName(String name) throws StateNotFoundException {
         //Шукаємо по дефолтам
         Optional<? extends AbstractUserState> defaultState = getAllDefaultStates()
                 .stream()
@@ -50,7 +55,7 @@ public class StatesService {
         throw new StateNotFoundException("State not found with name: " + name);
     }
 
-    public boolean doesStateExist(String name){
+    public boolean doesStateExist(String name) {
         return customStateRepository.getByName(name).isPresent();
     }
 
@@ -58,23 +63,38 @@ public class StatesService {
         return customStateRepository.getByName(name).map(CustomUserState::new);
     }
 
+    public void createState(String stateUsername,
+                            String stateDirectory,
+                            boolean canWrite,
+                            boolean isAdmin,
+                            boolean isEnabled,
+                            int downloadSpeed,
+                            int uploadSpeed) {
+        createState(new CustomUserStateBuilder(stateUsername,stateDirectory)
+                .setAdmin(isAdmin)
+                .setCanWrite(canWrite)
+                .setEnabled(isEnabled)
+                .setDownloadSpeed(downloadSpeed)
+                .setUploadSpeed(uploadSpeed)
+                .build());
+    }
+
     /**
      * Створює новий запис
      * Якщо ім'я співпаде з дефолтним іменем, кине помилку
      * @param customUserState кастомний стейт
      */
-    public void createState(CustomUserState customUserState){
-        if (getAllDefaultStates().stream().map(AbstractUserState::getName).noneMatch(o -> o.equals(customUserState.getName()))){
-            throw new StateCreationException("Custom state has same name, as default: "+ customUserState.getName());
+    public void createState(CustomUserState customUserState) {
+        if (getAllDefaultStates().stream().map(AbstractUserState::getName).anyMatch(o -> o.equals(customUserState.getName()))) {
+            throw new StateCreationException("Custom state has same name, as default: " + customUserState.getName());
         }
-        if (customStateRepository.getByName(customUserState.getName()).isPresent()){
-            throw new StateCreationException("There is already state with this name: "+ customUserState.getName());
+        if (customStateRepository.getByName(customUserState.getName()).isPresent()) {
+            throw new StateCreationException("There is already state with this name: " + customUserState.getName());
         }
-       customStateRepository.save(new CustomStateEntity(customUserState));
+        customStateRepository.save(new CustomStateEntity(customUserState));
     }
 
-
-    public CustomStateEntity convertCustomUserState(CustomUserState customUserState){
+    public CustomStateEntity convertCustomUserState(CustomUserState customUserState) {
         return new CustomStateEntity(customUserState);
     }
 

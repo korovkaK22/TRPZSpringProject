@@ -58,11 +58,15 @@
         </c:if>
         Upload speed:${serverUser.state.uploadSpeed}(Bytes/s)<br>
         Download speed: ${serverUser.state.downloadSpeed} (Bytes/s)<br>
-
         <form class="snapshots" action="/create-snapshot" method="post">
             <input type="hidden" name="username" value="${serverUser.name}" />
-            <input id="memento-input" type="text" name="name" value="" placeholder="Назва знімку" required>
-            <button id="memento-button" type="submit">Зберегти як знімок</button>
+            <input class="input-field" id="memento-input" type="text" name="name" value="" placeholder="Назва знімку" required>
+            <button class="small-button" type="submit">Зберегти як знімок</button>
+        </form>
+
+        <form class="snapshots" action="/users/delete-user" method="post">
+            <input type="hidden" name="username" value="${serverUser.name}" />
+            <button class="small-button red" type="submit">Видалити</button>
         </form>
 
     </div>
