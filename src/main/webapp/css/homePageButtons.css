@@ -35,38 +35,35 @@ button {
     text-align: center;
 }
 
+button:hover{
+    background-color: #073056;
+}
 
 
 button:disabled{
     background-color: #8f1e1e;
 }
 
-#open-queue-button{
+button:disabled:hover{
+    background-color: #701919;
+}
+
+.red{
+    background-color: #8f1e1e;
+}
+
+.red:hover{
+    background-color: #701919;
+}
+.green{
     background-color: #1a8f1b;
 }
 
-#mode-queue-button{
-    background-color:  #042a5d;
+.green:hover{
+    background-color: #0e730f;
 }
 
-.delete-user-button{
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%,-50%);
-    background-color: #980505;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
-.delete-user-button img{
-    width: 25px;
-    height: 25px;
-}
 
-.delete-user-button:hover{
-    background-color: #730404;
-}
+
+

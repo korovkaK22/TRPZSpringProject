@@ -3,6 +3,7 @@ package com.example.web.controllers;
 import com.example.entity.UserEntity;
 import com.example.server.FTPServer;
 import com.example.services.UserService;
+import com.example.services.UserSnapshotService;
 import com.example.users.ServerUser;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
@@ -24,6 +25,7 @@ import java.util.List;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
     private UserService userService;
+    private UserSnapshotService userSnapshotService;
 
     @GetMapping("/home")
     public String enterPage(Model model, HttpSession session,
@@ -67,17 +69,17 @@ public class UserController {
             return "/WEB-INF/jsp/viewUser.jsp";
         }
 
+        //Знайти користувача
         ServerUser serverUser;
         try {
             serverUser = userService.getServerUserByName(username);
         } catch (Exception e){
-            logger.warn("Помилка при відображенні користувача: "+ e.getMessage());
             return "redirect:/404";
         }
 
         model.addAttribute("user", user);
         model.addAttribute("serverUser", serverUser);
-       // model.addAttribute("mementos", user);
+        model.addAttribute("mementos",  userSnapshotService.getSnapshotsByUser(username));
 
         return "/WEB-INF/jsp/viewUser.jsp";
     }

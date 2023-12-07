@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
+    username VARCHAR(255) PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
     state_name VARCHAR(255) NOT NULL
 );
@@ -16,9 +15,10 @@ CREATE TABLE IF NOT EXISTS custom_states (
 );
 
 CREATE TABLE user_snapshots (
-                                id SERIAL PRIMARY KEY,
-                                name VARCHAR(255),
-                                username VARCHAR(255),
-                                password VARCHAR(255),
-                                state_name VARCHAR(255)
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    username VARCHAR(255),
+    password VARCHAR(255),
+    state_name VARCHAR(255),
+    FOREIGN KEY (name) REFERENCES "users" (username)
 );

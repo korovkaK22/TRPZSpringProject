@@ -7,7 +7,7 @@
     <title>Home Page</title>
     <link rel="stylesheet" type="text/css" href="../../css/default.css">
     <link rel="stylesheet" type="text/css" href="../../css/userlist.css">
-    <link rel="stylesheet" type="text/css" href="../../css/authorization.css">
+
     <link rel="stylesheet" type="text/css" href="../../css/homePageButtons.css">
 
     <%--Гугл шрифт на черги--%>
@@ -36,41 +36,37 @@
 
 
 <div class="centerSign">
-    <div><a href="/createUser">Я гвинтик</a></div>
+    <div>Знімок "<c:out value="${memento.name}"/>"</div>
 </div>
 
-<div class="user-list">
+<div class="statistic-container">
+    User: <a href="/users/${memento.username}"><c:out value="${memento.username}"/></a><br>
+    State: <c:out value="${memento.stateName}"/> <br>
 
-    <c:choose>
-        <c:when test="${users.size()==0}">Ще немає користувачів</c:when>
-        <c:otherwise>
-            <div class="centerSign">
-                Користувачі:
-            </div>
-            <c:forEach items="${users}" var="u">
-                <div class="user">
-                    (<c:out value="${u.state.name}"/>) <a href="/users/${u.name}"><c:out value="${u.name}"/></a>
-                </div>
-            </c:forEach>
-        </c:otherwise>
-    </c:choose>
+    Home directory: <c:out value="${state.homeDir}"/> <br>
+    <c:if test="${state.isAdmin}">
+        <span style="color: red;">Administrator</span><br>
+    </c:if>
+    <c:if test="${state.canWrite}">
+        <span style="color: #27de27;">Can Write</span><br>
+    </c:if>
+    <c:if test="${!state.canWrite}">
+        <span style="color: red;">Can't Write</span><br>
+    </c:if>
+    Upload speed:${state.uploadSpeed}(Bytes/s)<br>
+    Download speed: ${state.downloadSpeed} (Bytes/s)<br>
 </div>
 
-
-    <%--Кнопочки--%>
 <div class="buttons">
-    <form action="/home" method="get">
-        <input type="hidden" name="page" value="${pageNumber - 1}" />
-        <button type="submit" <c:if test="${pageNumber == 1}">disabled="disabled"</c:if>>Попередня сторінка</button>
+    <form action="/snapshots/delete" method="post">
+        <input type="hidden" name="id" value="${memento.id}"/>
+        <button class="red" type="submit">Видалити знімок</button>
     </form>
-    <form action="/createUser" method="get">
-        <button class="green" type="submit">Створити користувача</button>
+    <form action="/snapshots/set-to-user" method="post">
+        <input type="hidden" name="id" value="${memento.id}"/>
+        <button class="green" type="submit">Застосувати знімок</button>
     </form>
-    <form action="/home" method="get">
-        <input type="hidden" name="page" value="${pageNumber + 1}" />
-        <button type="submit" <c:if test="${!hasNextPage}">disabled="disabled"</c:if>>Наступна сторінка</button>
-    </form>
-</c:if>
+    </c:if>
 
 
 </body>
