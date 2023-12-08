@@ -35,43 +35,13 @@ public class UserController {
     private UserSnapshotService userSnapshotService;
     private StatesService statesService;
 
-    @GetMapping("/home")
-    public String enterPage(Model model, HttpSession session,
-                            @RequestParam(defaultValue = "1") @Positive int page) {
-        ServerUser user;
-        //Не зареєстрований
-        if ((user = (ServerUser) session.getAttribute("user")) == null) {
-            return "/WEB-INF/jsp/homePage.jsp";
-        }
-        final int pageSize = 8;
 
-        //=============ЗАТИЧКА=============
-        List<ServerUser> allUsers = new LinkedList<>(userService.getAllUsers());
-        allUsers.remove(user);
-
-        //=============ЗАТИЧКА=============
-        for (int i = 0; i < 17; i++) {
-            allUsers.add(allUsers.get(0));
-        }
-
-        int startIndex = (page - 1) * pageSize;
-        if (startIndex > allUsers.size()) {
-            return "redirect:/404";
-        }
-        int endIndex = Math.min(startIndex + pageSize, allUsers.size());
-        boolean hasNextPage = endIndex < allUsers.size();
-        model.addAttribute("user", user);
-        model.addAttribute("pageNumber", page);
-        model.addAttribute("hasNextPage", hasNextPage);
-        model.addAttribute("users", allUsers.subList(startIndex, endIndex));
-        return "/WEB-INF/jsp/homePage.jsp";
-    }
 
     @PostMapping("/users/create-user-default")
     public String createUserDefault(Model model, HttpSession session,
-                                    @RequestParam("username") String username,
-                                    @RequestParam("password") String password,
-                                    @RequestParam("myDropdown") String roleName) {
+                                    @RequestParam("username") @NotBlank String username,
+                                    @RequestParam("password") @NotBlank String password,
+                                    @RequestParam("myDropdown") @NotBlank String roleName) {
         ServerUser user;
         //Не зареєстрований
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
@@ -135,6 +105,11 @@ public class UserController {
     @PostMapping("/users/delete-user")
     public String createUserDefault(Model model, HttpSession session,
                                     @RequestParam @NotBlank String username) {
+        ServerUser user;
+        //Не зареєстрований
+        if ((user = (ServerUser) session.getAttribute("user")) == null) {
+            return "redirect:/home";
+        }
         userService.deleteUser(username);
         return "redirect:/home";
     }

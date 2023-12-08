@@ -4,6 +4,7 @@ import com.example.server.FTPServer;
 import com.example.exceptions.*;
 import com.example.server.ServerUserManager;
 import com.example.services.UserService;
+import com.example.templatepattern.AbstractUserManagerInitialization;
 import com.example.templatepattern.AllUsersManagerInitialization;
 import com.example.templatepattern.OnlyAdminUsersManagerInitialization;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
@@ -24,9 +25,15 @@ public class SpringConfiguration {
     }
 
     @Bean(name = "serverUserManager")
-    public ServerUserManager getConfiguredServerUserManager(PasswordEncryptor passwordEncryptor, UserService userService){
-        //OnlyAdminUsersManagerInitialization init = new OnlyAdminUsersManagerInitialization(userService, passwordEncryptor);
-        AllUsersManagerInitialization init = new AllUsersManagerInitialization(userService, passwordEncryptor);
+    public ServerUserManager getConfiguredServerUserManager(PasswordEncryptor passwordEncryptor,
+                                                            UserService userService) {
+        AbstractUserManagerInitialization init;
+
+        //Тільки адміни зможуть зайти
+        //init = new OnlyAdminUsersManagerInitialization(userService, passwordEncryptor);
+
+        //Всі люди зможуть зайти
+        init = new AllUsersManagerInitialization(userService, passwordEncryptor);
         return init.getInitialisedUserManager();
     }
 

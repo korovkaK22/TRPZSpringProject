@@ -15,3 +15,4 @@ public class ServerUserSnapshot {
     private final String hashedPassword;
     private final AbstractUserState state;
 }
+

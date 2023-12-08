@@ -3,6 +3,7 @@ package com.example.server;
 
 import com.example.exceptions.*;
 import com.example.users.ServerUser;
+import com.example.visitor.IVisitor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.ftpserver.ConnectionConfig;
@@ -10,6 +11,7 @@ import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.impl.DefaultConnectionConfig;
+import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.apache.ftpserver.listener.ListenerFactory;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
@@ -21,14 +23,15 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
+@Getter
 public class FTPServer {
     private final int port;
     private final int maxUsers;
     private final AtomicInteger activeConnections = new AtomicInteger(0);
-
+    private final Set<String> activeUsers = Collections.synchronizedSet(new HashSet<>());
 
     ServerUserManager userManager;
-    FtpServer server;
+    DefaultFtpServer server;
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
 
     public FTPServer(int port,   int maxUsers,  ServerUserManager userManager){
@@ -53,7 +56,7 @@ public class FTPServer {
         Map<String, Ftplet> m = new HashMap<>();
         m.put("miaFtplet", new FtpletImpl());
         serverFactory.setFtplets(m);
-        server = serverFactory.createServer();
+        server =(DefaultFtpServer) serverFactory.createServer();
     }
 
 
@@ -107,6 +110,7 @@ public class FTPServer {
                 String userName = session.getUser().getName();
                 logger.info(String.format("%s \"%s\" has disconnected in successfully. (%d/%d)",
                         getUser(userName).getStateName(), userName, activeConnections.get(), maxUsers));
+                activeUsers.remove(userName);
             } else {
                 silentMode = false;
             }
@@ -122,6 +126,7 @@ public class FTPServer {
             if (maxUsers == 0) {
                 logger.info(String.format("%s \"%s\" has connected. (%d/%d)",
                         user.getStateName(), userName, activeConnections.get(), maxUsers));
+                activeUsers.add(userName);
                 return FtpletResult.DEFAULT;
             }
             //Ліміт юзерів вже вийшов
@@ -130,6 +135,7 @@ public class FTPServer {
                 if (userManager.isAdmin(userName)) {
                     logger.info(String.format("%s \"%s\" has connected. (%d/%d)",
                             user.getStateName(), userName, activeConnections.get(), maxUsers));
+                    activeUsers.add(userName);
                     return FtpletResult.DEFAULT;
                 } else {
                     //Це не адмін, кік
@@ -144,6 +150,7 @@ public class FTPServer {
                 //Ліміт ще дозволяє заходити
                 logger.info(String.format("%s \"%s\" has logged in successfully. (%d/%d)",
                         user.getStateName(), session.getUser().getName(), activeConnections.get(), maxUsers));
+                activeUsers.add(userName);
                 return FtpletResult.DEFAULT;
             }
         }
@@ -155,6 +162,10 @@ public class FTPServer {
 
         }
 
+    }
+
+    public void accept(IVisitor visitor){
+        visitor.getStatistic(this);
     }
 
 

@@ -16,5 +16,7 @@ public class ServerInformation {
     private int maxUsersNumber;
     private List<String> allUsersName;
     private List<String> allOnlineUsersName;
-
 }
+
+
+

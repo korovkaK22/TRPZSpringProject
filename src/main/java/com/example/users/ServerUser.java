@@ -92,8 +92,6 @@ public class ServerUser extends BaseUser implements User {
         return new ServerUserSnapshot(this.name, this.hashedPassword, this.state);
     }
 
-
-
     public void restoreFromSnapshot(ServerUserSnapshot snapshot) {
         this.name = snapshot.getName();
         this.hashedPassword = snapshot.getHashedPassword();

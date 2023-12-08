@@ -36,7 +36,15 @@
 
 
 <div class="centerSign">
-    <div><a href="/createUser">Я гвинтик</a></div>
+    Статистика: Онлайн: (${info.currentUsersNumber}/${info.maxUsersNumber})
+    <c:choose>
+        <c:when test="${info.allOnlineUsersName.size()==0}"></c:when>
+        <c:otherwise>
+            <c:forEach items="${info.allOnlineUsersName}" var="n">
+                  <a href="/users/${n}"><c:out value="${n}"/></a>
+            </c:forEach>
+        </c:otherwise>
+    </c:choose>
 </div>
 
 <div class="user-list">
@@ -45,7 +53,7 @@
         <c:when test="${users.size()==0}">Ще немає користувачів</c:when>
         <c:otherwise>
             <div class="centerSign">
-                Користувачі:
+               Всі користувачі:
             </div>
             <c:forEach items="${users}" var="u">
                 <div class="user">
@@ -58,18 +66,19 @@
 
 
     <%--Кнопочки--%>
-<div class="buttons">
-    <form action="/home" method="get">
-        <input type="hidden" name="page" value="${pageNumber - 1}" />
-        <button type="submit" <c:if test="${pageNumber == 1}">disabled="disabled"</c:if>>Попередня сторінка</button>
-    </form>
-    <form action="/createUser" method="get">
-        <button class="green" type="submit">Створити користувача</button>
-    </form>
-    <form action="/home" method="get">
-        <input type="hidden" name="page" value="${pageNumber + 1}" />
-        <button type="submit" <c:if test="${!hasNextPage}">disabled="disabled"</c:if>>Наступна сторінка</button>
-    </form>
+    <div class="buttons">
+        <form action="/home" method="get">
+            <input type="hidden" name="page" value="${pageNumber - 1}" />
+            <button type="submit" style="<c:if test='${pageNumber == 1}'>display: none;</c:if>">Попередня сторінка</button>
+        </form>
+        <form action="/createUser" method="get">
+            <button class="green" type="submit">Створити користувача</button>
+        </form>
+        <form action="/home" method="get">
+            <input type="hidden" name="page" value="${pageNumber + 1}" />
+            <button type="submit" style="<c:if test='${!hasNextPage}'>display: none;</c:if>">Наступна сторінка</button>
+        </form>
+    </div>
 </c:if>
 
 

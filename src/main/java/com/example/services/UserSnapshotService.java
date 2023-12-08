@@ -20,7 +20,7 @@ public class UserSnapshotService {
     private StatesService statesService;
     private UserService userService;
 
-//    Цю штуку треба буде перевірити
+
     public void setToUserSnapshots(UserSnapshotEntity entity){
         userService.changeUserEntityBySnapshot(entity);
         userService.updateUserManager(userService.getServerUserByName(entity.getUsername()));
@@ -29,7 +29,7 @@ public class UserSnapshotService {
 
 
     public List<UserSnapshotEntity> getSnapshotsByUser(String username) {
-        return snapshotRepository.findAllByUsername(username);
+        return snapshotRepository.findAllByUsername(username).stream().sorted((o1, o2) -> o2.getId()- o1.getId()).toList();
     }
 
     public ServerUserSnapshot convertSnapshot(UserSnapshotEntity entity) {

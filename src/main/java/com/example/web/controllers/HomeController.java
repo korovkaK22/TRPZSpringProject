@@ -2,12 +2,14 @@ package com.example.web.controllers;
 
 import com.example.security.PasswordEncryptorImpl;
 import com.example.server.FTPServer;
+import com.example.services.HomeService;
 import com.example.services.UserService;
 import com.example.users.ServerUser;
 import com.example.users.states.AdminUserState;
 import com.example.users.states.CustomUserStateBuilder;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -24,6 +28,7 @@ import java.util.Optional;
 public class HomeController {
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
     private UserService userService;
+    private HomeService homeService;
 
 
     @GetMapping("/")
@@ -67,6 +72,35 @@ public class HomeController {
     private String notFoundPage() {
 
         return "/WEB-INF/jsp/notFoundPage.jsp";
+    }
+
+    @GetMapping("/home")
+    public String enterPage(Model model, HttpSession session,
+                            @RequestParam(defaultValue = "1") @Positive int page) {
+        ServerUser user;
+        //Не зареєстрований
+        if ((user = (ServerUser) session.getAttribute("user")) == null) {
+            return "/WEB-INF/jsp/homePage.jsp";
+        }
+        final int pageSize = 8;
+
+        List<ServerUser> allUsers = new LinkedList<>(userService.getAllUsers());
+
+        // for (int i =0; i < 20; i++){
+        // allUsers.add(allUsers.get(1));}
+
+        int startIndex = (page - 1) * pageSize;
+        if (startIndex > allUsers.size()) {
+            return "redirect:/404";
+        }
+        int endIndex = Math.min(startIndex + pageSize, allUsers.size());
+        boolean hasNextPage = endIndex < allUsers.size();
+        model.addAttribute("user", user);
+        model.addAttribute("pageNumber", page);
+        model.addAttribute("hasNextPage", hasNextPage);
+        model.addAttribute("users", allUsers.subList(startIndex, endIndex));
+        model.addAttribute("info", homeService.getInformation());
+        return "/WEB-INF/jsp/homePage.jsp";
     }
 
 }
