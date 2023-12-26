@@ -155,7 +155,7 @@ public class FTPServer {
             }
         }
 
-        //Отримати по імені юзераз юзерлісту
+        //Отримати по імені юзера з юзерлісту
         private ServerUser getUser(String username) {
            return userManager.getServerUserByName(username)
                    .orElseThrow(() -> new NullPointerException("Unknown User"));

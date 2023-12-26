@@ -1,24 +1,18 @@
 CREATE TABLE IF NOT EXISTS users (
-    username VARCHAR(255) PRIMARY KEY,
+    id SERIAL PRIMARY KEY NOT NULL,
+    username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    state_name VARCHAR(255) NOT NULL
+    role_id VARCHAR(255) NOT NULL references roles(id)
 );
 
-CREATE TABLE IF NOT EXISTS custom_states (
-    name VARCHAR(255) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    path VARCHAR(255) NOT NULL,
     is_admin BOOLEAN NOT NULL,
-    direction VARCHAR(255) NOT NULL,
     is_enabled BOOLEAN NOT NULL,
     can_write BOOLEAN NOT NULL,
     upload_speed INT NOT NULL,
     download_speed INT NOT NULL
 );
 
-CREATE TABLE user_snapshots (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    username VARCHAR(255),
-    password VARCHAR(255),
-    state_name VARCHAR(255),
-    FOREIGN KEY (name) REFERENCES "users" (username)
-);
