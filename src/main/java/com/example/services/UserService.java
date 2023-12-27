@@ -1,5 +1,6 @@
 package com.example.services;
 
+import com.example.entity.RoleEntity;
 import com.example.entity.UserEntity;
 import com.example.mapper.UserMapper;
 import com.example.repositories.UserRepository;
@@ -32,8 +33,6 @@ public class UserService {
     private UserMapper userMapper;
 
 
-
-
     public List<ServerUser> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::userEntityToServerUser)
@@ -42,22 +41,15 @@ public class UserService {
 
     }
 
-    public List<ServerUser> getOnlyAdminUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::userEntityToServerUser)
-                .filter(ServerUser::isAdmin)
-                .sorted(Comparator.comparing(ServerUser::getName))
-                .toList();
-    }
 
-    public  List<ServerUser> getUsersByName(String... names) {
+    public List<ServerUser> getUsersByName(String... names) {
         List<ServerUser> result = new ArrayList<>();
-        for (String name : names){
+        for (String name : names) {
             Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
-            if (userOpt.isPresent()){
+            if (userOpt.isPresent()) {
                 result.add(userMapper.userEntityToServerUser(userOpt.get()));
-            }   else{
-                logger.warn("Can't find such user: "+ name);
+            } else {
+                logger.warn("Can't find such user: " + name);
             }
         }
         return result;
@@ -66,49 +58,94 @@ public class UserService {
 
     /**
      * Перевіряє, чи співпадають паролі;
-     *
      * @param name     ім'я користувача
      * @param password пароль
      */
     public boolean checkPasswords(String name, String password) {
-        ServerUser user = getServerUserByName(name);
-        return passwordEncryptor.matches(password, user.getPassword());
+        Optional<ServerUser> userOpt = getServerUserByName(name);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        return passwordEncryptor.matches(password, userOpt.get().getPassword());
+
     }
 
 
-
-    public void updateUserManager(ServerUser user){
-      applicationContext.getBean(ServerUserManager.class).save(user);
+    public boolean doesUserExist(String name) {
+        return userRepository.findUserEntityByUsernameIgnoreCase(name).isPresent();
     }
-
-    public boolean doesUserExist(String name){
-        return  userRepository.findUserEntityByUsernameIgnoreCase(name).isPresent();
-    }
-
-    public ServerUser getServerUserByName(String name) {
-//        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
-//        if (userOpt.isEmpty()) {
-//            throw new UserNotFoundException("Can't find user with name: " + name);
-//        }
-//        return convertUserEntity(userOpt.get());
-        throw new UnsupportedOperationException(); //=====
+    public Optional<ServerUser> getServerUserById(int id) {
+        Optional<UserEntity> userOpt = userRepository.findUserEntityById(id);
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(userMapper.userEntityToServerUser(userOpt.get()));
     }
 
 
-
-
-
-    public void createUser(String username, String password, String stateName) {
-       // UserEntity user = new UserEntity(username,passwordEncryptor.encrypt(password), stateName);
-
-//        if (userRepository.findUserEntityByUsernameIgnoreCase(user.getUsername()).isPresent()) {
-//            throw new UserCreationException("User with this name already exist: " + user.getUsername());
-//        }
-//        userRepository.save(user);
+    public Optional<ServerUser> getServerUserByName(String name) {
+        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
+        if (userOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(userMapper.userEntityToServerUser(userOpt.get()));
     }
 
-    public void deleteUser(Integer id){
+    /**
+     * Створює юзера і повертає його id
+     * @param username ім'я
+     * @param password пароль
+     * @param roleId id ролі
+     * @return id юзера або -1, при нестворенні
+     */
+    public int createUser(String username, String password, int roleId) {
+         UserEntity user = new UserEntity();
+         user.setUsername(username);
+         user.setPassword(passwordEncryptor.encrypt(password));
+         Optional<RoleEntity> entityOpt = roleService.getRoleEntity(roleId);
+         if (entityOpt.isPresent()){
+             user.setRole(entityOpt.get());
+             UserEntity entity= userRepository.save(user);
+             return entity.getId();
+         }
+        return -1;
+    }
+
+    public int getUserId(String name){
+        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
+        if (userOpt.isEmpty()){
+            return -1;
+        }
+        return userOpt.get().getId();
+    }
+
+    public boolean changeRole(int userId, int newRoleId){
+        Optional<UserEntity> entityOpt = userRepository.findUserEntityById(userId);
+        if (entityOpt.isEmpty()){
+            return false;
+        }
+        UserEntity user = entityOpt.get();
+        Optional<RoleEntity> roleEntityOpt = roleService.getRoleEntity(newRoleId);
+        if (roleEntityOpt.isEmpty()){
+            return false;
+        }
+        RoleEntity role = roleEntityOpt.get();
+        user.setRole(role);
+
+        ServerUserManager manager = getUserManager();
+        Optional<ServerUser> serverUserOpt= manager.getServerUserByName(user.getUsername());
+        serverUserOpt.ifPresent(serverUser -> serverUser.setRole(roleService.getUserRole(newRoleId).get()));
+        return true;
+    }
+
+    private ServerUserManager getUserManager(){
+        return  applicationContext.getBean(ServerUserManager.class);
+    }
+
+    public void deleteUser(Integer id) {
+        String name = userRepository.getReferenceById(id).getUsername();
         userRepository.deleteById(id);
+        getUserManager().delete(name);
     }
 
 }

@@ -11,11 +11,13 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "username", target = "name")
     @Mapping(source = "password", target = "hashedPassword")
     @Mapping(source = "role", target = "role")
     ServerUser userEntityToServerUser(UserEntity userEntity);
 
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "username")
     @Mapping(source = "hashedPassword", target = "password")
     @Mapping(target = "role", ignore = true)

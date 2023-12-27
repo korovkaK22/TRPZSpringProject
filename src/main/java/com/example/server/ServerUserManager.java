@@ -29,6 +29,7 @@ public class ServerUserManager implements UserManager {
         }
     }
 
+
     @Override
     public User getUserByName(String userName) {
         if (!this.doesExist(userName)) {

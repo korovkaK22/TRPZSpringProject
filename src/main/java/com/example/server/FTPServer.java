@@ -6,6 +6,7 @@ import com.example.users.ServerUser;
 import com.example.visitor.IVisitor;
 import lombok.Getter;
 import org.apache.ftpserver.ConnectionConfig;
+import org.apache.ftpserver.ConnectionConfigFactory;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.impl.DefaultConnectionConfig;
@@ -26,26 +27,30 @@ public class FTPServer {
     private final AtomicInteger activeConnections = new AtomicInteger(0);
     private final Set<ServerUser> activeUsers = Collections.synchronizedSet(new HashSet<>());
     private final ServerAccessState state;
-
+    private final int globalUploadSpeed;
+    private final int globalDownloadSpeed;
 
     private final ServerUserManager userManager;
     private DefaultFtpServer server;
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
 
-    public FTPServer(int port, int maxUsers, ServerUserManager userManager, ServerAccessState state){
+    public FTPServer(int port, int maxUsers, ServerUserManager userManager,
+                     ServerAccessState state, int globalUploadSpeed, int globalDownloadSpeed){
         this.port = port;
         this.maxUsers = maxUsers;
         this.userManager = userManager;
         this.state = state;
+        this.globalUploadSpeed = globalUploadSpeed;
+        this.globalDownloadSpeed = globalDownloadSpeed;
         init();
     }
 
     private void init() {
         ListenerFactory factory = new ListenerFactory();
         factory.setPort(port);
-
         ConnectionConfig connectionConfig = new DefaultConnectionConfig(false, 500,
                     0, 0, 3, 5);
+
         FtpServerFactory serverFactory = new FtpServerFactory();
         serverFactory.setConnectionConfig(connectionConfig);
 
@@ -68,20 +73,7 @@ public class FTPServer {
         }
     }
 
-    private class FtpletImpl implements Ftplet {
-
-        @Override
-        public void init(FtpletContext ftpletContext) throws FtpException {
-        }
-
-        @Override
-        public void destroy() {
-        }
-
-        @Override
-        public FtpletResult beforeCommand(FtpSession ftpSession, FtpRequest ftpRequest) throws FtpException, IOException {
-            return FtpletResult.DEFAULT;
-        }
+    private class FtpletImpl extends DefaultFtplet{
 
         @Override
         public FtpletResult afterCommand(FtpSession session, FtpRequest request, FtpReply reply) throws FtpException, IOException {
@@ -111,6 +103,7 @@ public class FTPServer {
                 activeUsers.remove(user);
             return FtpletResult.DEFAULT;
         }
+
 
         //Визивається тільки тоді, коли вже все добре пройшло
         private FtpletResult tryToJoin(FtpSession session) throws FtpException, IOException {

@@ -24,16 +24,6 @@
 </head>
 <body>
 
-<c:if test="${user == null}">
-    <div class="centerSign">
-        Незареєстрований користувач
-        <div><a href="/">Увійти</a></div>
-    </div>
-    </div>
-</c:if>
-
-<c:if test="${user != null}">
-
 
 <div class="centerSign">
     Статистика: Онлайн: (${info.currentUsersNumber}/${info.maxUsersNumber})
@@ -41,7 +31,7 @@
         <c:when test="${info.allOnlineUsersName.size()==0}"></c:when>
         <c:otherwise>
             <c:forEach items="${info.allOnlineUsersName}" var="n">
-                  <a href="/users/${n}"><c:out value="${n}"/></a>
+                <a href="/users/${n}"><c:out value="${n}"/></a>
             </c:forEach>
         </c:otherwise>
     </c:choose>
@@ -53,11 +43,11 @@
         <c:when test="${users.size()==0}">Ще немає користувачів</c:when>
         <c:otherwise>
             <div class="centerSign">
-               Всі користувачі:
+                Всі користувачі:
             </div>
             <c:forEach items="${users}" var="u">
                 <div class="user">
-                    (<c:out value="${u.state.name}"/>) <a href="/users/${u.name}"><c:out value="${u.name}"/></a>
+                    (<c:out value="${u.role.name}"/>) <a href="/users/${u.id}"><c:out value="${u.name}"/></a>
                 </div>
             </c:forEach>
         </c:otherwise>
@@ -65,21 +55,36 @@
 </div>
 
 
-    <%--Кнопочки--%>
-    <div class="buttons">
-        <form action="/home" method="get">
-            <input type="hidden" name="page" value="${pageNumber - 1}" />
-            <button type="submit" style="<c:if test='${pageNumber == 1}'>display: none;</c:if>">Попередня сторінка</button>
-        </form>
-        <form action="/createUser" method="get">
-            <button class="green" type="submit">Створити користувача</button>
-        </form>
-        <form action="/home" method="get">
-            <input type="hidden" name="page" value="${pageNumber + 1}" />
-            <button type="submit" style="<c:if test='${!hasNextPage}'>display: none;</c:if>">Наступна сторінка</button>
-        </form>
-    </div>
-</c:if>
+<%--Кнопочки--%>
+<div class="buttons">
+    <form action="/home" method="get">
+        <input type="hidden" name="page" value="${pageNumber - 1}"/>
+        <button type="submit" style="<c:if test='${pageNumber == 1}'>display: none;</c:if>">Попередня сторінка</button>
+    </form>
+    <form action="/createUser" method="get">
+        <button class="green" type="submit">Створити користувача</button>
+    </form>
+    <form action="/createRole" method="get">
+        <button class="green" type="submit">Створити Роль</button>
+    </form>
+    <form action="/home" method="get">
+        <input type="hidden" name="page" value="${pageNumber + 1}"/>
+        <button type="submit" style="<c:if test='${!hasNextPage}'>display: none;</c:if>">Наступна сторінка</button>
+    </form>
+</div>
+
+<div class="globalSpeed">
+    Ліміт швидкості для всіх користувачів
+    <form action="/global-speed" method="post">
+        <div class="globalSpeedInputs">
+            <input class="input-field" type="text" name="downloadSpeed" value="${globalDownloadSpeed}"
+                   placeholder=" Завантаження" required>
+            <input class="input-field" type="text" name="uploadSpeed" value="${globalUploadSpeed}"
+                   placeholder=" Вивантаження" required>
+        </div>
+        <button type="submit">Оновити швидкість</button>
+    </form>
+</div>
 
 
 </body>

@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface RoleMapper {
     RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 
-
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "path", target = "homeDir")
     @Mapping(source = "isAdmin", target = "isAdmin")
@@ -20,6 +20,7 @@ public interface RoleMapper {
     @Mapping(source = "downloadSpeed", target = "downloadSpeed")
     UserRole roleEntityToUserRole(RoleEntity roleEntity);
 
+    @Mapping(source = "id", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "homeDir", target = "path")
     @Mapping(source = "isAdmin", target = "isAdmin")

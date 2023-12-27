@@ -4,6 +4,7 @@ import com.example.server.FTPServer;
 import com.example.exceptions.*;
 import com.example.server.ServerUserManager;
 import com.example.server.states.AllUsersAccessState;
+import com.example.server.states.NoNewUsersState;
 import com.example.server.states.OnlyCertainRolesAccessState;
 import com.example.server.states.ServerAccessState;
 import com.example.services.UserService;
@@ -32,10 +33,13 @@ public class SpringConfiguration {
 
     @Bean(name = "FTPServer")
     public FTPServer getFTPServer(@Value("${ftp.server.port}") int port,
-                                  @Value("${ftp.server.max.users}") int maxServerUsers, ServerUserManager serverUserManager,
-                                  ServerAccessState state){
+                                  @Value("${ftp.server.max.users}") int maxServerUsers,
+                                  ServerUserManager serverUserManager,
+                                  ServerAccessState state,
+                                  @Value("${ftp.server.max.users}") int globalUploadSpeed,
+                                  @Value("${ftp.server.max.users}") int globalDownloadSpeed){
 
-        return new FTPServer(port, maxServerUsers, serverUserManager, state);
+        return new FTPServer(port, maxServerUsers, serverUserManager, state, globalUploadSpeed, globalDownloadSpeed);
     }
 
     @Bean(name = "serverUserManager")
@@ -69,6 +73,9 @@ public class SpringConfiguration {
             case "allusers" -> {
                 logger.info("ServerState: AllUsersAccessState");
                 yield new AllUsersAccessState();}
+            case "nonewusers" -> {
+                logger.info("ServerState: noNewUsers");
+                yield new NoNewUsersState();}
             case "onlycertainroles" -> {
                 String rolesStr = env.getProperty("ftp.server.roles");
                 if (rolesStr == null){

@@ -35,3 +35,13 @@ a {
 a:hover {
     color: #ad265e;
 }
+
+#defaultRoleSelect{
+
+    display: flex;
+    justify-content: center;
+}
+
+#defaultRoleSelect select{
+    margin-top: 30px;
+}

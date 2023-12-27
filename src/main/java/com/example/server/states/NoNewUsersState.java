@@ -6,11 +6,10 @@ import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @AllArgsConstructor
-public class ClosedServerAccessState extends ServerAccessState {
+public class NoNewUsersState extends ServerAccessState {
     private static final Logger logger = LogManager.getRootLogger();
 
 
@@ -27,7 +26,7 @@ public class ClosedServerAccessState extends ServerAccessState {
         String name = user.getName();
 
 
-        logger.warn(String.format("%s \"%s\" try to connected, but server is in offline mode. (%d/%d)",
+        logger.warn(String.format("%s \"%s\" try to connected, but server is in noNewUser mode. (%d/%d)",
                 user.getRoleName(), name, activeConnections.get() - 1, maxUsers));
         return FtpletResult.DISCONNECT;
 

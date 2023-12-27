@@ -4,6 +4,7 @@ import lombok.*;
 import org.apache.ftpserver.ftplet.Authority;
 import org.apache.ftpserver.ftplet.AuthorizationRequest;
 import org.apache.ftpserver.ftplet.User;
+import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,10 +12,11 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 @ToString
-
 public class ServerUser implements User {
+    private int id;
     private String name;
     private String hashedPassword;
+    @Setter
     private UserRole role;
 
     public boolean isAdmin() {

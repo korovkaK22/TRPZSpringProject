@@ -1,15 +1,12 @@
-package com.example.users.states;
+package com.example.users;
 
+import com.example.entity.RoleEntity;
 import com.example.users.UserRole;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Builder для свого власного стейту юзера (CustomUserState)
  */
-public class CustomUserStateBuilder {
+public class UserRoleEntityBuilder {
     /** Тека користувача, у якої до неї буде доступ*/
     private final String homeDir;
     /** Ім'я ролі, воно показуватиметься у консолі*/
@@ -25,7 +22,7 @@ public class CustomUserStateBuilder {
     /** пропускна швидкість на завантаження */
     int downloadSpeed = 100;
 
-    public CustomUserStateBuilder(String name, String homeDir) {
+    public UserRoleEntityBuilder(String name, String homeDir) {
         valid(homeDir, name);
         this.homeDir = homeDir;
         this.name = name;
@@ -35,7 +32,7 @@ public class CustomUserStateBuilder {
      * Встановити, чи включений аккаунт користувача (чи може зайти на сервер)
      @param isEnabled чи зможе користувач заходити на сервер.
      */
-    public CustomUserStateBuilder setEnabled(boolean isEnabled) {
+    public UserRoleEntityBuilder setEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
         return this;
     }
@@ -44,7 +41,7 @@ public class CustomUserStateBuilder {
      * Надати користувачу права адміна
      @param isAdmin чи адмін користувач.
      */
-    public CustomUserStateBuilder setAdmin(boolean isAdmin) {
+    public UserRoleEntityBuilder setAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
         return this;
     }
@@ -53,7 +50,7 @@ public class CustomUserStateBuilder {
      * Надати користувачу права створювати файли, їх редагувати
      @param canWrite чи може це користувач робити
      */
-    public CustomUserStateBuilder setCanWrite(boolean canWrite) {
+    public UserRoleEntityBuilder setCanWrite(boolean canWrite) {
         this.canWrite = canWrite;
         return this;
     }
@@ -61,7 +58,7 @@ public class CustomUserStateBuilder {
      * Встановити швидкість вивантажування
      @param uploadSpeed швидкість вивантажування >=0
      */
-    public CustomUserStateBuilder setUploadSpeed(int uploadSpeed) {
+    public UserRoleEntityBuilder setUploadSpeed(int uploadSpeed) {
         if (uploadSpeed < 0) {
             throw new IllegalArgumentException("speed cannot be minus");
         }
@@ -72,7 +69,7 @@ public class CustomUserStateBuilder {
      * Встановити швидкість завантажування
      @param downloadSpeed швидкість завантажування >=0
      */
-    public CustomUserStateBuilder setDownloadSpeed(int downloadSpeed) {
+    public UserRoleEntityBuilder setDownloadSpeed(int downloadSpeed) {
         if (downloadSpeed < 0) {
             throw new IllegalArgumentException("speed cannot be minus");
         }
@@ -82,8 +79,16 @@ public class CustomUserStateBuilder {
     /**
      * Отримати наш готовий стейт
      */
-    public UserRole build() {
-        return new UserRole(isEnabled,homeDir,isAdmin,uploadSpeed,downloadSpeed,canWrite,name);
+    public RoleEntity build() {
+        RoleEntity result = new RoleEntity();
+        result.setIsAdmin(isAdmin);
+        result.setCanWrite(canWrite);
+        result.setDownloadSpeed(downloadSpeed);
+        result.setUploadSpeed(uploadSpeed);
+        result.setPath(homeDir);
+        result.setIsEnabled(isEnabled);
+        result.setName(name);
+        return  result;
     }
 
     /**
