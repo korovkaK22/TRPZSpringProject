@@ -1,9 +1,6 @@
 package com.example.server.states;
 
 import com.example.users.ServerUser;
-import org.apache.ftpserver.ftplet.DefaultFtpReply;
-import org.apache.ftpserver.ftplet.FtpReply;
-import org.apache.ftpserver.ftplet.FtpSession;
 import org.apache.ftpserver.ftplet.FtpletResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,11 +21,12 @@ public class AllUsersAccessState extends ServerAccessState {
     @Override
     public FtpletResult checkServerAccess(ServerUser user, int maxUsers, AtomicInteger activeConnections) {
         String name = user.getName();
+        String role = user.getRoleName();
 
         //Виключений ліміт по юзерам
         if (maxUsers == 0) {
             logger.info(String.format("%s \"%s\" has connected. (%d/%d)",
-                    user.getStateName(), name, activeConnections.get(), maxUsers));
+                    role, name, activeConnections.get(), maxUsers));
 
             return FtpletResult.DEFAULT;
         }
@@ -37,19 +35,19 @@ public class AllUsersAccessState extends ServerAccessState {
             //Це адмін
             if (user.isAdmin()) {
                 logger.info(String.format("%s \"%s\" has connected. (%d/%d)",
-                        user.getStateName(), name, activeConnections.get(), maxUsers));
+                        role, name, activeConnections.get(), maxUsers));
 
                 return FtpletResult.DEFAULT;
             } else {
                 //Це не адмін, кік
                 logger.warn(String.format("%s \"%s\" try to connected, but server is full. (%d/%d)",
-                        user.getStateName(), name, activeConnections.get() - 1, maxUsers));
+                        role, name, activeConnections.get() - 1, maxUsers));
                 return FtpletResult.DISCONNECT;
             }
         } else {
             //Ліміт ще дозволяє заходити
             logger.info(String.format("%s \"%s\" has logged in successfully. (%d/%d)",
-                    user.getStateName(), name, activeConnections.get(), maxUsers));
+                    role, name, activeConnections.get(), maxUsers));
             return FtpletResult.DEFAULT;
         }
     }

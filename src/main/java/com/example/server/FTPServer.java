@@ -1,21 +1,16 @@
 package com.example.server;
 
 
-import com.example.exceptions.*;
 import com.example.server.states.ServerAccessState;
 import com.example.users.ServerUser;
 import com.example.visitor.IVisitor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.ftpserver.ConnectionConfig;
-import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.impl.DefaultConnectionConfig;
 import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.apache.ftpserver.listener.ListenerFactory;
-import org.apache.ftpserver.usermanager.PasswordEncryptor;
-import org.apache.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +107,7 @@ public class FTPServer {
                 String userName = session.getUser().getName();
                 ServerUser user = getUser(userName);
                 logger.info(String.format("%s \"%s\" has disconnected in successfully. (%d/%d)",
-                        getUser(userName).getStateName(), userName, activeConnections.get(), maxUsers));
+                        getUser(userName).getRoleName(), userName, activeConnections.get(), maxUsers));
                 activeUsers.remove(user);
             return FtpletResult.DEFAULT;
         }
