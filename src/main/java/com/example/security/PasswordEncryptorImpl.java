@@ -15,7 +15,7 @@ public class PasswordEncryptorImpl implements PasswordEncryptor {
 
     @Override
     public boolean matches(String password, String storedHash) {
-      //  return password.equals(storedHash);
+        // return password.equals(storedHash);
         return BCrypt.checkpw(password, storedHash);
     }
 }

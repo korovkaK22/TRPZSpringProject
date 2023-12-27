@@ -1,8 +1,6 @@
 package com.example.visitor;
 
 import com.example.server.FTPServer;
-import com.example.server.ServerUserManager;
-import org.apache.ftpserver.ConnectionConfig;
 
 
 import org.apache.ftpserver.ftplet.FtpStatistics;
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-public class IVisitorImpl implements IVisitor {
+public class VisitorImpl implements IVisitor {
     @Override
     public ServerInformation getStatistic(FTPServer ftpServer) {
         DefaultFtpServer server = ftpServer.getServer();

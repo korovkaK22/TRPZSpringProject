@@ -1,36 +1,34 @@
 package com.example.users;
 
-import com.example.users.states.AbstractUserState;
 import lombok.*;
 import org.apache.ftpserver.ftplet.Authority;
 import org.apache.ftpserver.ftplet.AuthorizationRequest;
 import org.apache.ftpserver.ftplet.User;
 import org.apache.ftpserver.usermanager.impl.BaseUser;
+import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
 import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Getter
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
-public class ServerUser extends BaseUser implements User {
+
+public class ServerUser implements User {
     private String name;
     private String hashedPassword;
-    @Getter
-    private AbstractUserState state;
+    private UserRole role;
 
     public boolean isAdmin() {
-        return state.getIsAdmin();
+        return role.getIsAdmin();
     }
 
     public String getStateName(){
-        return state.getName();
+        return role.getName();
     }
 
     @Override
@@ -45,8 +43,9 @@ public class ServerUser extends BaseUser implements User {
 
     @Override
     public List<Authority> getAuthorities() {
-        return state.getAuthorities();
+        return role.getAuthorities();
     }
+
 
     @Override
     public int getMaxIdleTime() {
@@ -55,12 +54,12 @@ public class ServerUser extends BaseUser implements User {
 
     @Override
     public boolean getEnabled() {
-        return state.getIsEnabled();
+        return role.getIsEnabled();
     }
 
     @Override
     public String getHomeDirectory() {
-        return state.getHomeDir();
+        return role.getHomeDir();
     }
 
     @Override
@@ -86,18 +85,14 @@ public class ServerUser extends BaseUser implements User {
         }
     }
 
-
-
-    public ServerUserSnapshot createSnapshot() {
-        return new ServerUserSnapshot(this.name, this.hashedPassword, this.state);
+    public List<Authority> getAuthorities(Class<? extends Authority> clazz) {
+        return role.getAuthorities().stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .collect(Collectors.toList());
     }
 
-    public void restoreFromSnapshot(ServerUserSnapshot snapshot) {
-        this.name = snapshot.getName();
-        this.hashedPassword = snapshot.getHashedPassword();
-        this.state = snapshot.getState();
-    }
-  }
+}
 
 
 

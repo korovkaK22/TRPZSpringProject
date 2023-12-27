@@ -1,15 +1,13 @@
 package com.example.services;
 
 import com.example.entity.UserEntity;
-import com.example.entity.UserSnapshotEntity;
+import com.example.mapper.UserMapper;
 import com.example.repositories.UserRepository;
-import com.example.repositories.UserSnapshotEntityRepository;
+
 import com.example.security.PasswordEncryptorImpl;
 import com.example.server.ServerUserManager;
 import com.example.users.ServerUser;
 import com.example.exceptions.*;
-import com.example.users.states.AbstractUserState;
-import com.example.users.states.CustomUserState;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -25,22 +23,24 @@ import java.util.Optional;
 public class UserService {
     private ApplicationContext applicationContext;
     private UserRepository userRepository;
-    private StatesService statesService;
+    private RoleService roleService;
     private PasswordEncryptorImpl passwordEncryptor;
-    private UserSnapshotEntityRepository userSnapshotEntityRepository;
+    private UserMapper userMapper;
+
 
 
 
     public List<ServerUser> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::convertUserEntity)
+                .map(userMapper::userEntityToServerUser)
                 .sorted(Comparator.comparing(ServerUser::getName))
                 .toList();
+
     }
 
     public List<ServerUser> getOnlyAdminUsers() {
         return userRepository.findAll().stream()
-                .map(this::convertUserEntity)
+                .map(userMapper::userEntityToServerUser)
                 .filter(ServerUser::isAdmin)
                 .sorted(Comparator.comparing(ServerUser::getName))
                 .toList();
@@ -58,14 +58,7 @@ public class UserService {
         return passwordEncryptor.matches(password, user.getPassword());
     }
 
-    public void changeUserEntityBySnapshot(UserSnapshotEntity entity){
-        UserEntity userEntity = getUserEntityByName(entity.getUsername());
-        userEntity.setUsername(entity.getUsername());
-        userEntity.setPassword(entity.getPassword());
-        userEntity.setStateName(entity.getStateName());
-        userRepository.save(userEntity);
 
-    }
 
     public void updateUserManager(ServerUser user){
       applicationContext.getBean(ServerUserManager.class).save(user);
@@ -76,65 +69,29 @@ public class UserService {
     }
 
     public ServerUser getServerUserByName(String name) {
-        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
-        if (userOpt.isEmpty()) {
-            throw new UserNotFoundException("Can't find user with name: " + name);
-        }
-        return convertUserEntity(userOpt.get());
-    }
-
-    public UserEntity getUserEntityByName(String name) {
-        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
-        if (userOpt.isEmpty()) {
-            throw new UserNotFoundException("Can't find user with name: " + name);
-        }
-        return userOpt.get();
+//        Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
+//        if (userOpt.isEmpty()) {
+//            throw new UserNotFoundException("Can't find user with name: " + name);
+//        }
+//        return convertUserEntity(userOpt.get());
+        throw new UnsupportedOperationException(); //=====
     }
 
 
-    public ServerUser convertUserEntity(UserEntity entity) {
-        try {
-            return new ServerUser(entity.getUsername(), entity.getPassword(),
-                    statesService.getStateByName(entity.getStateName()));
-        } catch (Exception e) {
-            throw new UserConvertException("Can't convert user " + entity.getUsername() + "\":", e);
-        }
-    }
 
-    public UserEntity convertServerUser(ServerUser entity) {
-        return new UserEntity(entity.getName(), entity.getPassword(), entity.getStateName());
-    }
-
-    public void editUser(String name, ServerUser user) {
-        //Перевірка, що ім'я не зайняте
-        if (!name.equals(user.getName())) {
-            if (userRepository.findUserEntityByUsernameIgnoreCase(user.getName()).isPresent()) {
-                throw new UserEditException("There is already a user with this name:" + user.getName());
-            }
-        }
-
-        UserEntity result = convertServerUser(user);
-        userRepository.save(result);
-        userSnapshotEntityRepository.changeUsernameInAllSnapshot(name, user.getName());
-
-        if (!name.equals(user.getName())) {
-            userRepository.deleteById(name);
-        }
-
-    }
 
 
     public void createUser(String username, String password, String stateName) {
-        UserEntity user = new UserEntity(username,passwordEncryptor.encrypt(password), stateName);
+       // UserEntity user = new UserEntity(username,passwordEncryptor.encrypt(password), stateName);
 
-        if (userRepository.findUserEntityByUsernameIgnoreCase(user.getUsername()).isPresent()) {
-            throw new UserCreationException("User with this name already exist: " + user.getUsername());
-        }
-        userRepository.save(user);
+//        if (userRepository.findUserEntityByUsernameIgnoreCase(user.getUsername()).isPresent()) {
+//            throw new UserCreationException("User with this name already exist: " + user.getUsername());
+//        }
+//        userRepository.save(user);
     }
 
-    public void deleteUser(String username){
-        userRepository.deleteById(username);
+    public void deleteUser(Integer id){
+        userRepository.deleteById(id);
     }
 
 }

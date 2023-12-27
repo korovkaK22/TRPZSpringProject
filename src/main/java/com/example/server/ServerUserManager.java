@@ -1,18 +1,10 @@
 package com.example.server;
 
-import com.example.security.PasswordEncryptorImpl;
 import com.example.users.ServerUser;
-import com.example.users.states.CustomUserState;
-import com.example.users.states.CustomUserStateBuilder;
 import lombok.AllArgsConstructor;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
-import org.apache.ftpserver.usermanager.impl.BaseUser;
-import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
-import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
-import org.apache.ftpserver.usermanager.impl.WritePermission;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -95,7 +87,7 @@ public class ServerUserManager implements UserManager {
         }
         User user = getUserByName(username);
         if (user instanceof ServerUser serverUser){
-            return serverUser.getState().getIsAdmin();
+            return serverUser.getRole().getIsAdmin();
         }
        return false;
     }

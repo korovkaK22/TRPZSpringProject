@@ -1,5 +1,7 @@
 package com.example.users.states;
 
+import com.example.users.UserRole;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,8 +82,8 @@ public class CustomUserStateBuilder {
     /**
      * Отримати наш готовий стейт
      */
-    public CustomUserState build() {
-        return new CustomUserState(isEnabled,homeDir,isAdmin,uploadSpeed,downloadSpeed,canWrite,name);
+    public UserRole build() {
+        return new UserRole(isEnabled,homeDir,isAdmin,uploadSpeed,downloadSpeed,canWrite,name);
     }
 
     /**
@@ -101,4 +103,3 @@ public class CustomUserStateBuilder {
         }
     }
 }
-

@@ -1,14 +1,9 @@
 package com.example.web.controllers;
 
-import com.example.entity.UserEntity;
 import com.example.server.FTPServer;
-import com.example.services.StatesService;
+import com.example.services.RoleService;
 import com.example.services.UserService;
-import com.example.services.UserSnapshotService;
 import com.example.users.ServerUser;
-import com.example.users.states.AbstractUserState;
-import com.example.users.states.CustomUserState;
-import com.example.users.states.CustomUserStateBuilder;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
@@ -23,8 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.LinkedList;
-import java.util.List;
+
 
 @Controller
 @Transactional
@@ -32,8 +26,8 @@ import java.util.List;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
     private UserService userService;
-    private UserSnapshotService userSnapshotService;
-    private StatesService statesService;
+   // private UserSnapshotService userSnapshotService;
+    private RoleService roleService;
 
 
 
@@ -47,8 +41,8 @@ public class UserController {
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
-        List<AbstractUserState> allDefaultStates = statesService.getAllDefaultStates();
-        model.addAttribute("allDefaultStates", allDefaultStates);
+        // List<UserRole> allDefaultStates = roleService.getAllDefaultStates();
+      //  model.addAttribute("allDefaultStates", allDefaultStates);
 
         //Чи є вже такий користувач
         if (userService.doesUserExist(username)) {
@@ -75,27 +69,27 @@ public class UserController {
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
-        List<AbstractUserState> allDefaultStates = statesService.getAllDefaultStates();
-        model.addAttribute("allDefaultStates", allDefaultStates);
+      //  List<UserRole> allDefaultStates = roleService.getAllDefaultStates();
+      //  model.addAttribute("allDefaultStates", allDefaultStates);
 
         //Чи є вже такий користувач
         if (userService.doesUserExist(username)) {
             model.addAttribute("failMessage", "Користувач з таким іменем вже існує!");
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
-        if (statesService.doesStateExist(stateUsername)) {
-            model.addAttribute("failMessage", "Цей статус вже існує!");
-            return "/WEB-INF/jsp/createUserPage.jsp";
-        }
+//        if (roleService.doesStateExist(stateUsername)) {
+//            model.addAttribute("failMessage", "Цей статус вже існує!");
+//            return "/WEB-INF/jsp/createUserPage.jsp";
+//        }
 
         userService.createUser(username, password, stateUsername);
-        statesService.createState(stateUsername,
-                stateDirectory,
-                canWrite,
-                isAdmin,
-                isEnabled,
-                downloadSpeed,
-                uploadSpeed);
+//        roleService.createState(stateUsername,
+//                stateDirectory,
+//                canWrite,
+//                isAdmin,
+//                isEnabled,
+//                downloadSpeed,
+//                uploadSpeed);
 
         return "redirect:/users/" + username;
     }
@@ -110,7 +104,7 @@ public class UserController {
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
             return "redirect:/home";
         }
-        userService.deleteUser(username);
+       // userService.deleteUser(username);
         return "redirect:/home";
     }
 
@@ -121,10 +115,10 @@ public class UserController {
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
-        List<AbstractUserState> allDefaultStates = statesService.getAllDefaultStates();
+       // List<UserRole> allDefaultStates = roleService.getAllDefaultStates();
 
         model.addAttribute("user", user);
-        model.addAttribute("allDefaultStates", allDefaultStates);
+      //  model.addAttribute("allDefaultStates", allDefaultStates);
 
         return "/WEB-INF/jsp/createUserPage.jsp";
     }
@@ -149,7 +143,7 @@ public class UserController {
 
         model.addAttribute("user", user);
         model.addAttribute("serverUser", serverUser);
-        model.addAttribute("mementos", userSnapshotService.getSnapshotsByUser(username));
+        // model.addAttribute("mementos", userSnapshotService.getSnapshotsByUser(username));
 
         return "/WEB-INF/jsp/viewUser.jsp";
     }

@@ -1,11 +1,7 @@
 package com.example.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -15,19 +11,25 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class UserEntity {
 
     @Id
-    @Column(name = "username")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
+    @Column(nullable = false, length = 255)
     private String username;
 
-    @Column(name = "password")
+    @NotNull
+    @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(name = "state_name")
-    private String stateName;
-
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private RoleEntity role;
 
 }
-
 

@@ -1,12 +1,9 @@
 package com.example.web.controllers;
 
-import com.example.security.PasswordEncryptorImpl;
 import com.example.server.FTPServer;
 import com.example.services.HomeService;
 import com.example.services.UserService;
 import com.example.users.ServerUser;
-import com.example.users.states.AdminUserState;
-import com.example.users.states.CustomUserStateBuilder;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
@@ -57,10 +53,10 @@ public class HomeController {
 
         //Перевірка на адміна
         ServerUser user = userService.getServerUserByName(username);
-        if (!user.getState().getIsAdmin()){
-            model.addAttribute("failMessage", "Даний аккаунт не є адміном!");
-            return "/WEB-INF/jsp/loginPage.jsp";
-        }
+//        if (!user.getRole().getIsAdmin()){
+//            model.addAttribute("failMessage", "Даний аккаунт не є адміном!");
+//            return "/WEB-INF/jsp/loginPage.jsp";
+//        }
 
         //Все пройшло добре
         session.setAttribute("user", user);

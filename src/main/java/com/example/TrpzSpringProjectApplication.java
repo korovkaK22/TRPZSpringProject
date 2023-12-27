@@ -1,11 +1,16 @@
 package com.example;
 
+import com.example.mapper.RoleMapper;
+import com.example.mapper.UserMapper;
+import com.example.repositories.RoleEntityRepository;
+import com.example.repositories.UserRepository;
 import com.example.security.PasswordEncryptorImpl;
 import com.example.server.FTPServer;
 
 import com.example.services.UserService;
 import com.example.users.ServerUser;
-import com.example.users.states.AdminUserState;
+
+import com.example.users.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,6 +25,8 @@ public class TrpzSpringProjectApplication {
         FTPServer server =  context.getBean("FTPServer", FTPServer.class);
         server.start();
 
+        PasswordEncryptorImpl passwordEncryptor =  context.getBean( PasswordEncryptorImpl.class);
+        //System.out.println(passwordEncryptor.encrypt("admin"));
 
 
 

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 
 @AllArgsConstructor
-public class OnlyAdminUsersManagerInitialization extends AbstractUserManagerInitialization{
+public class OnlyCertainUsersManagerInitialization extends AbstractUserManagerInitialization{
     private UserService userService;
     private PasswordEncryptor passwordEncryptor;
 

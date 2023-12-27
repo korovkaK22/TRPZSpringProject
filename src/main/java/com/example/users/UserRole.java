@@ -1,4 +1,4 @@
-package com.example.users.states;
+package com.example.users;
 
 import lombok.*;
 import org.apache.ftpserver.ftplet.Authority;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @ToString
 @Getter
-public abstract class AbstractUserState {
+public class UserRole {
     private final boolean isEnabled;
     private final String name;
     private final String homeDir;
@@ -22,8 +22,8 @@ public abstract class AbstractUserState {
     private final int downloadSpeed;
     private final List<Authority> authorities = new ArrayList<>();
 
-    public AbstractUserState(boolean isEnabled, String homeDir, boolean isAdmin,
-                             int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
+    public UserRole( boolean isEnabled, String homeDir, boolean isAdmin,
+                    int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
         this.isEnabled = isEnabled;
         this.homeDir = homeDir;
         this.isAdmin = isAdmin;

@@ -6,7 +6,6 @@ import com.example.server.ServerUserManager;
 import com.example.services.UserService;
 import com.example.templatepattern.AbstractUserManagerInitialization;
 import com.example.templatepattern.AllUsersManagerInitialization;
-import com.example.templatepattern.OnlyAdminUsersManagerInitialization;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
