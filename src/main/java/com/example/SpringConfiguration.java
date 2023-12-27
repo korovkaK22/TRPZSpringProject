@@ -3,9 +3,12 @@ package com.example;
 import com.example.server.FTPServer;
 import com.example.exceptions.*;
 import com.example.server.ServerUserManager;
+import com.example.server.states.AllUsersAccessState;
+import com.example.server.states.ServerAccessState;
 import com.example.services.UserService;
 import com.example.templatepattern.AbstractUserManagerInitialization;
 import com.example.templatepattern.AllUsersManagerInitialization;
+import com.example.templatepattern.OnlyCertainUsersManagerInitialization;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,23 +20,33 @@ import org.springframework.context.annotation.PropertySource;
 public class SpringConfiguration {
 
     @Bean(name = "FTPServer")
-    public FTPServer getFTPServer(@Value("${serverPort}") int port,
-                                  @Value("${maxServerUsers}") int maxServerUsers, ServerUserManager serverUserManager) throws ServerInitializationException {
+    public FTPServer getFTPServer(@Value("${server.port}") int port,
+                                  @Value("${server.max.users}") int maxServerUsers, ServerUserManager serverUserManager,
+                                  ServerAccessState state){
 
-        return new FTPServer(port, maxServerUsers, serverUserManager);
+        return new FTPServer(port, maxServerUsers, serverUserManager, state);
     }
 
     @Bean(name = "serverUserManager")
-    public ServerUserManager getConfiguredServerUserManager(PasswordEncryptor passwordEncryptor,
+    public ServerUserManager getConfiguredServerUserManager(@Value("${server.users.whitelist}") boolean isWhitelist,
+                                                            @Value("${server.users.whitelist.names}") String  usernames,
+                                                            PasswordEncryptor passwordEncryptor,
                                                             UserService userService) {
         AbstractUserManagerInitialization init;
-
-        //Тільки адміни зможуть зайти
-        //init = new OnlyAdminUsersManagerInitialization(userService, passwordEncryptor);
-
-        //Всі люди зможуть зайти
-        init = new AllUsersManagerInitialization(userService, passwordEncryptor);
+        if (isWhitelist){
+            //Тільки адміни зможуть зайти
+            String[] names = usernames.trim().split("\\s");
+            init = new OnlyCertainUsersManagerInitialization(userService, passwordEncryptor, names);
+        } else{
+            //Всі люди зможуть зайти
+            init = new AllUsersManagerInitialization(userService, passwordEncryptor);
+        }
         return init.getInitialisedUserManager();
+    }
+
+    @Bean
+    public ServerAccessState getServerAccessState(){
+        return new AllUsersAccessState();
     }
 
 

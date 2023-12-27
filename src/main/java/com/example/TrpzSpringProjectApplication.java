@@ -26,15 +26,9 @@ public class TrpzSpringProjectApplication {
         server.start();
 
         PasswordEncryptorImpl passwordEncryptor =  context.getBean( PasswordEncryptorImpl.class);
-        //System.out.println(passwordEncryptor.encrypt("admin"));
+        //System.out.println(passwordEncryptor.encrypt("watcher"));
 
 
-
-//        String[] array = context.getBeanDefinitionNames();
-//        Arrays.sort(array);
-//        String s = Arrays.toString(array);
-//        s = s.replaceAll(", ", ",\n");
-//        System.out.println(s);
     }
 
 }

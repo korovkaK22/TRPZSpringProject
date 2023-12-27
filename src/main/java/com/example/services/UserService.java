@@ -10,9 +10,12 @@ import com.example.users.ServerUser;
 import com.example.exceptions.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +24,7 @@ import java.util.Optional;
 @Transactional
 @AllArgsConstructor
 public class UserService {
+    private static final Logger logger = LogManager.getRootLogger();
     private ApplicationContext applicationContext;
     private UserRepository userRepository;
     private RoleService roleService;
@@ -44,6 +48,19 @@ public class UserService {
                 .filter(ServerUser::isAdmin)
                 .sorted(Comparator.comparing(ServerUser::getName))
                 .toList();
+    }
+
+    public  List<ServerUser> getUsersByName(String... names) {
+        List<ServerUser> result = new ArrayList<>();
+        for (String name : names){
+            Optional<UserEntity> userOpt = userRepository.findUserEntityByUsernameIgnoreCase(name);
+            if (userOpt.isPresent()){
+                result.add(userMapper.userEntityToServerUser(userOpt.get()));
+            }   else{
+                logger.warn("Can't find such user: "+ name);
+            }
+        }
+        return result;
     }
 
 
