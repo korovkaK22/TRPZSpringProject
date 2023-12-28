@@ -34,8 +34,8 @@ public class UserRole {
         this.homeDir = homeDir;
         this.isAdmin = isAdmin;
         this.canWrite = canWrite;
-        this.uploadSpeed = Math.min(uploadSpeed, globalUploadSpeed);
-        this.downloadSpeed = Math.min(downloadSpeed, globalDownloadSpeed);
+        this.uploadSpeed = uploadSpeed;
+        this.downloadSpeed = downloadSpeed;
         this.name = name;
         if (canWrite) {authorities.add(new WritePermission());}
         authorities.add(new CustomTransferRatePermission(downloadSpeed, uploadSpeed));

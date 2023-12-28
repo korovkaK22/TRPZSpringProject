@@ -50,6 +50,7 @@ public class UserController {
             model.addAttribute("failMessage", "Помилка при створенні користувача");
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
+        logger.info(String.format("Create new user: %s ", userService.getServerUserById(result).get().getName()));
         return "redirect:/users/" + result;
     }
 
@@ -151,6 +152,8 @@ public class UserController {
 
         return "/WEB-INF/jsp/viewUser.jsp";
     }
+
+
     @PostMapping("/users/change-role")
     public String changeUserRole(Model model, HttpSession session,
                                  @RequestParam int id,

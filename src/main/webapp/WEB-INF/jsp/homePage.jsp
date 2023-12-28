@@ -64,8 +64,8 @@
     <form action="/createUser" method="get">
         <button class="green" type="submit">Створити користувача</button>
     </form>
-    <form action="/createRole" method="get">
-        <button class="green" type="submit">Створити Роль</button>
+    <form action="/roles" method="get">
+        <button  type="submit">Ролі</button>
     </form>
     <form action="/home" method="get">
         <input type="hidden" name="page" value="${pageNumber + 1}"/>

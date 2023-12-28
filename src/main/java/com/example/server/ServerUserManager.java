@@ -2,6 +2,7 @@ package com.example.server;
 
 import com.example.users.ServerUser;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
@@ -11,6 +12,7 @@ import java.util.*;
 
 @AllArgsConstructor
 public class ServerUserManager implements UserManager {
+    @Getter
     private final Map<String, User> users = new HashMap<>();
     private PasswordEncryptor passwordEncryptor;
 

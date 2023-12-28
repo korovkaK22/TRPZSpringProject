@@ -23,15 +23,8 @@
 <body>
 
 
-<c:if test="${user == null}">
-    <div class="centerSign">
-        Незареєстрований користувач
-        <div><a href="/">Увійти</a></div>
-    </div>
-    </div>
-</c:if>
 
-<c:if test="${user != null}">
+
     <div class="mainDiv">
         <div class="centerSign">
             Створити користувача
@@ -64,7 +57,7 @@
         </div>
     </div>
 
-</c:if>
+
 </body>
 </html>
 

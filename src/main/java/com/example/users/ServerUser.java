@@ -16,7 +16,7 @@ public class ServerUser implements User {
     private int id;
     private String name;
     private String hashedPassword;
-    @Setter
+    @Getter @Setter
     private UserRole role;
 
     public boolean isAdmin() {
