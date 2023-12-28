@@ -1,24 +1,18 @@
 package com.example.server;
 
-import com.example.security.PasswordEncryptorImpl;
 import com.example.users.ServerUser;
-import com.example.users.states.CustomUserState;
-import com.example.users.states.CustomUserStateBuilder;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.ftpserver.ftplet.*;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
-import org.apache.ftpserver.usermanager.impl.BaseUser;
-import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
-import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
-import org.apache.ftpserver.usermanager.impl.WritePermission;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 
 @AllArgsConstructor
 public class ServerUserManager implements UserManager {
+    @Getter
     private final Map<String, User> users = new HashMap<>();
     private PasswordEncryptor passwordEncryptor;
 
@@ -36,6 +30,7 @@ public class ServerUserManager implements UserManager {
             return user instanceof ServerUser ? Optional.of((ServerUser) user) : Optional.empty();
         }
     }
+
 
     @Override
     public User getUserByName(String userName) {
@@ -95,7 +90,7 @@ public class ServerUserManager implements UserManager {
         }
         User user = getUserByName(username);
         if (user instanceof ServerUser serverUser){
-            return serverUser.getState().getIsAdmin();
+            return serverUser.getRole().getIsAdmin();
         }
        return false;
     }

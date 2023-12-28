@@ -1,10 +1,9 @@
 package com.example.visitor;
 
 import com.example.server.FTPServer;
-import com.example.server.ServerUserManager;
-import org.apache.ftpserver.ConnectionConfig;
 
 
+import com.example.users.ServerUser;
 import org.apache.ftpserver.ftplet.FtpStatistics;
 import org.apache.ftpserver.impl.DefaultFtpServer;
 import org.apache.ftpserver.impl.FtpServerContext;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 
 @Component
-public class IVisitorImpl implements IVisitor {
+public class VisitorImpl implements IVisitor {
     @Override
     public ServerInformation getStatistic(FTPServer ftpServer) {
         DefaultFtpServer server = ftpServer.getServer();
@@ -23,7 +22,7 @@ public class IVisitorImpl implements IVisitor {
 
         result.setMaxUsersNumber(ftpServer.getMaxUsers());
         result.setCurrentUsersNumber(statistics.getCurrentLoginNumber());
-        result.setAllOnlineUsersName(ftpServer.getActiveUsers().stream().toList());
+        result.setAllOnlineUsersName(ftpServer.getActiveUsers().stream().map(ServerUser::getName).toList());
         result.setAllUsersName(Arrays.stream(ftpServer.getUserManager().getAllUserNames()).toList());
 
         return result;

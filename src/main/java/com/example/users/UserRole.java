@@ -1,4 +1,4 @@
-package com.example.users.states;
+package com.example.users;
 
 import lombok.*;
 import org.apache.ftpserver.ftplet.Authority;
@@ -12,7 +12,12 @@ import java.util.List;
 
 @ToString
 @Getter
-public abstract class AbstractUserState {
+public class UserRole {
+    @Setter @Getter
+    private static int globalUploadSpeed = Integer.MAX_VALUE;
+    @Setter @Getter
+    private static int globalDownloadSpeed = Integer.MAX_VALUE;
+    private final int id;
     private final boolean isEnabled;
     private final String name;
     private final String homeDir;
@@ -22,8 +27,9 @@ public abstract class AbstractUserState {
     private final int downloadSpeed;
     private final List<Authority> authorities = new ArrayList<>();
 
-    public AbstractUserState(boolean isEnabled, String homeDir, boolean isAdmin,
-                             int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
+    public UserRole(int id, boolean isEnabled, String homeDir, boolean isAdmin,
+                    int uploadSpeed, int downloadSpeed, boolean canWrite, String name) {
+        this.id = id;
         this.isEnabled = isEnabled;
         this.homeDir = homeDir;
         this.isAdmin = isAdmin;
@@ -32,7 +38,7 @@ public abstract class AbstractUserState {
         this.downloadSpeed = downloadSpeed;
         this.name = name;
         if (canWrite) {authorities.add(new WritePermission());}
-        authorities.add(new TransferRatePermission(downloadSpeed, uploadSpeed));
+        authorities.add(new CustomTransferRatePermission(downloadSpeed, uploadSpeed));
 
         authorities.add(new ConcurrentLoginPermission(1, 10));
     }
@@ -43,5 +49,17 @@ public abstract class AbstractUserState {
 
     public boolean getIsAdmin() {
         return isAdmin;
+    }
+
+    public List<Authority> getAuthorities() {
+        //Обмеження зі сторони сервера на швидкість
+        authorities.stream()
+                .filter( e -> e.getClass() == CustomTransferRatePermission.class)
+                .map(e -> (CustomTransferRatePermission) e)
+                .forEach(e -> {
+                    e.setMaxUploadRate(Math.min(uploadSpeed, globalUploadSpeed));
+                    e.setMaxDownloadRate(Math.min(downloadSpeed, globalDownloadSpeed));
+                });
+        return authorities;
     }
 }

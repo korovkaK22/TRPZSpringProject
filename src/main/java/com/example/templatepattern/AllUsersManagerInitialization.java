@@ -2,6 +2,8 @@ package com.example.templatepattern;
 
 import com.example.server.ServerUserManager;
 import com.example.services.UserService;
+import com.example.users.ServerUser;
+import com.example.users.UserRole;
 import lombok.AllArgsConstructor;
 import org.apache.ftpserver.usermanager.PasswordEncryptor;
 

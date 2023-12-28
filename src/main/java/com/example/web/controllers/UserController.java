@@ -1,14 +1,9 @@
 package com.example.web.controllers;
 
-import com.example.entity.UserEntity;
 import com.example.server.FTPServer;
-import com.example.services.StatesService;
+import com.example.services.RoleService;
 import com.example.services.UserService;
-import com.example.services.UserSnapshotService;
 import com.example.users.ServerUser;
-import com.example.users.states.AbstractUserState;
-import com.example.users.states.CustomUserState;
-import com.example.users.states.CustomUserStateBuilder;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
@@ -23,8 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Optional;
+
 
 @Controller
 @Transactional
@@ -32,73 +27,73 @@ import java.util.List;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(FTPServer.class);
     private UserService userService;
-    private UserSnapshotService userSnapshotService;
-    private StatesService statesService;
+   // private UserSnapshotService userSnapshotService;
+    private RoleService roleService;
 
 
 
-    @PostMapping("/users/create-user-default")
+    @PostMapping("/users/create-user")
     public String createUserDefault(Model model, HttpSession session,
                                     @RequestParam("username") @NotBlank String username,
                                     @RequestParam("password") @NotBlank String password,
-                                    @RequestParam("myDropdown") @NotBlank String roleName) {
+                                    @RequestParam("myDropdown") @NotBlank int roleId) {
         ServerUser user;
         //Не зареєстрований
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
-            return "/WEB-INF/jsp/createUserPage.jsp";
+            return "redirect:/";
         }
-        List<AbstractUserState> allDefaultStates = statesService.getAllDefaultStates();
-        model.addAttribute("allDefaultStates", allDefaultStates);
 
-        //Чи є вже такий користувач
-        if (userService.doesUserExist(username)) {
-            model.addAttribute("failMessage", "Користувач з таким іменем вже існує!");
+        model.addAttribute("roles", roleService.getAllRoles());
+
+        int result = userService.createUser(username, password, roleId);
+        if (result ==-1){
+            model.addAttribute("failMessage", "Помилка при створенні користувача");
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
-        userService.createUser(username, password, roleName);
-        return "redirect:/users/" + username;
+        logger.info(String.format("Create new user: %s ", userService.getServerUserById(result).get().getName()));
+        return "redirect:/users/" + result;
     }
 
-    @PostMapping("/users/create-user-custom")
-    public String createUserWithCustomRole(Model model, HttpSession session,
-                                           @RequestParam("username") String username,
-                                           @RequestParam("password") String password,
-                                           @RequestParam("stateUsername") @NotBlank String stateUsername,
-                                           @RequestParam("stateDirectory") @NotBlank String stateDirectory,
-                                           @RequestParam(name ="stateCanWrite", defaultValue = "false")  boolean canWrite,
-                                           @RequestParam(name ="stateIsAdmin", defaultValue = "false")  boolean isAdmin,
-                                           @RequestParam(name ="stateIsEnabled", defaultValue = "true")  boolean isEnabled,
-                                           @RequestParam("customDownloadSpeed") @NotBlank @Positive int downloadSpeed,
-                                           @RequestParam("customUploadSpeed") @NotBlank @Positive int uploadSpeed) {
-        ServerUser user;
-        //Не зареєстрований
-        if ((user = (ServerUser) session.getAttribute("user")) == null) {
-            return "/WEB-INF/jsp/createUserPage.jsp";
-        }
-        List<AbstractUserState> allDefaultStates = statesService.getAllDefaultStates();
-        model.addAttribute("allDefaultStates", allDefaultStates);
+//    @PostMapping("/users/create-user-custom")
+//    public String createUserWithCustomRole(Model model, HttpSession session,
+//                                           @RequestParam("username") String username,
+//                                           @RequestParam("password") String password,
+//                                           @RequestParam("stateUsername") @NotBlank String stateUsername,
+//                                           @RequestParam("stateDirectory") @NotBlank String stateDirectory,
+//                                           @RequestParam(name ="stateCanWrite", defaultValue = "false")  boolean canWrite,
+//                                           @RequestParam(name ="stateIsAdmin", defaultValue = "false")  boolean isAdmin,
+//                                           @RequestParam(name ="stateIsEnabled", defaultValue = "true")  boolean isEnabled,
+//                                           @RequestParam("customDownloadSpeed") @NotBlank @Positive int downloadSpeed,
+//                                           @RequestParam("customUploadSpeed") @NotBlank @Positive int uploadSpeed) {
+//        ServerUser user;
+//        //Не зареєстрований
+//        if ((user = (ServerUser) session.getAttribute("user")) == null) {
+//            return "/WEB-INF/jsp/createUserPage.jsp";
+//        }
+      //  List<UserRole> allDefaultStates = roleService.getAllDefaultStates();
+      //  model.addAttribute("allDefaultStates", allDefaultStates);
 
         //Чи є вже такий користувач
-        if (userService.doesUserExist(username)) {
-            model.addAttribute("failMessage", "Користувач з таким іменем вже існує!");
-            return "/WEB-INF/jsp/createUserPage.jsp";
-        }
-        if (statesService.doesStateExist(stateUsername)) {
-            model.addAttribute("failMessage", "Цей статус вже існує!");
-            return "/WEB-INF/jsp/createUserPage.jsp";
-        }
+//        if (userService.doesUserExist(username)) {
+//            model.addAttribute("failMessage", "Користувач з таким іменем вже існує!");
+//            return "/WEB-INF/jsp/createUserPage.jsp";
+//        }
+//        if (roleService.doesStateExist(stateUsername)) {
+//            model.addAttribute("failMessage", "Цей статус вже існує!");
+//            return "/WEB-INF/jsp/createUserPage.jsp";
+//        }
+//
+//        userService.createUser(username, password, stateUsername);
+//        roleService.createState(stateUsername,
+//                stateDirectory,
+//                canWrite,
+//                isAdmin,
+//                isEnabled,
+//                downloadSpeed,
+//                uploadSpeed);
 
-        userService.createUser(username, password, stateUsername);
-        statesService.createState(stateUsername,
-                stateDirectory,
-                canWrite,
-                isAdmin,
-                isEnabled,
-                downloadSpeed,
-                uploadSpeed);
-
-        return "redirect:/users/" + username;
-    }
+//        return "redirect:/users/" + username;
+//    }
 
 
 
@@ -110,9 +105,14 @@ public class UserController {
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
             return "redirect:/home";
         }
-        userService.deleteUser(username);
+        int id = userService.getUserId(username);
+        if (id==-1){
+            return "redirect:/home";
+        }
+        userService.deleteUser(id);
         return "redirect:/home";
     }
+
 
     @GetMapping("/createUser")
     public String createUserPage(Model model, HttpSession session) {
@@ -121,37 +121,57 @@ public class UserController {
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
             return "/WEB-INF/jsp/createUserPage.jsp";
         }
-        List<AbstractUserState> allDefaultStates = statesService.getAllDefaultStates();
 
         model.addAttribute("user", user);
-        model.addAttribute("allDefaultStates", allDefaultStates);
+        model.addAttribute("roles", roleService.getAllRoles());
 
         return "/WEB-INF/jsp/createUserPage.jsp";
     }
 
-
-    @GetMapping("/users/{username}")
+    @GetMapping("/users/{id}")
     public String viewUserPage(Model model, HttpSession session,
-                               @PathVariable @NotBlank String username) {
+                               @PathVariable int id) {
         ServerUser user;
         //Не зареєстрований
         if ((user = (ServerUser) session.getAttribute("user")) == null) {
-            return "/WEB-INF/jsp/viewUser.jsp";
+            return "redirect:/";
         }
 
         //Знайти користувача
-        ServerUser serverUser;
-        try {
-            serverUser = userService.getServerUserByName(username);
-        } catch (Exception e) {
+        Optional<ServerUser> serverUserOpt =userService.getServerUserById(id);
+        if (serverUserOpt.isEmpty()){
             return "redirect:/404";
         }
 
-        model.addAttribute("user", user);
+        ServerUser serverUser = serverUserOpt.get();
+
+
         model.addAttribute("serverUser", serverUser);
-        model.addAttribute("mementos", userSnapshotService.getSnapshotsByUser(username));
+        model.addAttribute("roles", roleService.getAllRoles());
+        // model.addAttribute("mementos", userSnapshotService.getSnapshotsByUser(username));
 
         return "/WEB-INF/jsp/viewUser.jsp";
     }
+
+
+    @PostMapping("/users/change-role")
+    public String changeUserRole(Model model, HttpSession session,
+                                 @RequestParam int id,
+                                 @RequestParam("myDropdown") int newRole){
+
+        ServerUser user;
+        //Не зареєстрований
+        if ((user = (ServerUser) session.getAttribute("user")) == null) {
+            return "redirect:/";
+        }
+        //Знайти користувача
+        Optional<ServerUser> serverUserOpt =userService.getServerUserById(id);
+        if (serverUserOpt.isEmpty()){
+            return "redirect:/404";
+        }
+        userService.changeRole(id, newRole);
+        return "redirect:/users/" + serverUserOpt.get().getId();
+    }
+
 
 }
